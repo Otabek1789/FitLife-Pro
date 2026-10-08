@@ -48,7 +48,7 @@ export const Navbar = () => {
   const isActive = (path) => location.pathname === path;
 
   return (
-    <header className="sticky top-0 z-40 w-full glass border-b border-slate-200/80 dark:border-slate-800/80 transition-colors">
+    <header className="sticky top-0 z-50 w-full bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 shadow-sm transition-colors">
       <div className="w-full max-w-[1536px] mx-auto px-3 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-2 lg:gap-4">
         
         {/* Brand Logo */}
@@ -124,7 +124,7 @@ export const Navbar = () => {
 
             {isLangDropdownOpen && (
               <div 
-                className="absolute right-0 mt-2 w-36 rounded-2xl glass-card shadow-xl border border-slate-200 dark:border-slate-800 py-1 z-50 animate-in fade-in zoom-in-95 duration-150"
+                className="absolute right-0 mt-2 w-36 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 py-1 z-50 animate-in fade-in zoom-in-95 duration-150"
                 onClick={() => setIsLangDropdownOpen(false)}
               >
                 {languages.map((lng) => (
@@ -203,7 +203,7 @@ export const Navbar = () => {
 
               {isUserMenuOpen && (
                 <div
-                  className="absolute right-0 mt-2 w-52 rounded-2xl glass-card shadow-xl border border-slate-200 dark:border-slate-800 py-2 z-50"
+                  className="absolute right-0 mt-2 w-52 rounded-2xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50"
                   onClick={() => setIsUserMenuOpen(false)}
                 >
                   <div className="px-3.5 py-2 border-b border-slate-100 dark:border-slate-800">
@@ -257,7 +257,7 @@ export const Navbar = () => {
 
       {/* Mobile Drawer Navigation */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden glass border-b border-slate-200 dark:border-slate-800 px-4 pt-2 pb-6 space-y-1.5 animate-in slide-in-from-top-4 duration-200">
+        <div className="lg:hidden bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800 px-4 pt-2 pb-6 space-y-1.5 shadow-xl animate-in slide-in-from-top-4 duration-200">
           {navLinks.map((link) => (
             <Link
               key={link.path}
