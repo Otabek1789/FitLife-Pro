@@ -1,9 +1,9 @@
 /**
- * FirLife Pro — Telegram Bot & Mini App Server
+ * FitLife Pro — Telegram Bot & Mini App Server
  * Token: 8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4
  * Chat ID: 7373118052
  * Bot: @nekitekibeki_bot
- * Title: FirLife Pro
+ * Title: FitLife Pro
  */
 
 const BOT_TOKEN = process.env.BOT_TOKEN || '8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4';
@@ -27,14 +27,14 @@ async function tgCall(method, body = {}) {
   }
 }
 
-// Set Menu Button [🏆 FirLife Pro]
+// Set Menu Button [🏆 FitLife Pro]
 async function configureMenuButton(url) {
   const targetUrl = url || WEB_APP_URL;
   console.log(`Setting Telegram Chat Menu Button to: ${targetUrl}...`);
   const res = await tgCall('setChatMenuButton', {
     menu_button: {
       type: 'web_app',
-      text: "🏆 FirLife Pro",
+      text: "🏆 FitLife Pro",
       web_app: { url: targetUrl }
     }
   });
@@ -62,14 +62,14 @@ async function pollUpdates() {
 
           console.log(`[Message from ${chatId}] ${text}`);
 
-          if (text.startsWith('/start') || text.startsWith('/shop') || text === "🏆 FirLife Pro ni ochish" || text === "🛍 Do'konni ochish") {
+          if (text.startsWith('/start') || text.startsWith('/shop') || text === "🏆 FitLife Pro ni ochish" || text === "🛍 Do'konni ochish") {
             const welcomeText = `
 Assalomu alaykum, <b>${firstName}</b>! 👋
 
-🏆 <b>FirLife Pro</b> — Sog'liq va Sport rasmiy platformasiga xush kelibsiz!
-Bu yerda siz professional sport ozuqalari (Protein, BCAA, Kreatin), trenajyorlar, FitLife zal abonementlari, interaktiv mashg'ulotlar va BMI kalkulyatoridan to'liq foydalanishingiz mumkin.
+🏆 <b>FitLife Pro</b> — Sog'liq va Sport rasmiy platformasiga xush kelibsiz!
+Bu yerda siz FitLife zallari va majmualariga a'zo bo'lishingiz, interaktiv mashg'ulotlar, soniya hisoblovchi taymer va BMI kalkulyatoridan to'liq foydalanishingiz mumkin.
 
-👇 Ilovani ochish uchun quyidagi <b>"🏆 FirLife Pro ni ochish"</b> tugmasini bosing:
+👇 Ilovani ochish uchun quyidagi <b>"🏆 FitLife Pro ni ochish"</b> tugmasini bosing:
 `;
 
             await tgCall('sendMessage', {
@@ -80,7 +80,7 @@ Bu yerda siz professional sport ozuqalari (Protein, BCAA, Kreatin), trenajyorlar
                 keyboard: [
                   [
                     {
-                      text: "🏆 FirLife Pro ni ochish",
+                      text: "🏆 FitLife Pro ni ochish",
                       web_app: { url: WEB_APP_URL }
                     }
                   ]
@@ -97,7 +97,7 @@ Bu yerda siz professional sport ozuqalari (Protein, BCAA, Kreatin), trenajyorlar
                 inline_keyboard: [
                   [
                     {
-                      text: "🚀 FirLife Pro Mini Appni Ochish",
+                      text: "🚀 FitLife Pro Mini Appni Ochish",
                       web_app: { url: WEB_APP_URL }
                     }
                   ]
@@ -107,7 +107,7 @@ Bu yerda siz professional sport ozuqalari (Protein, BCAA, Kreatin), trenajyorlar
           } else if (text === '/help') {
             await tgCall('sendMessage', {
               chat_id: chatId,
-              text: `ℹ️ <b>Yordam bo'limi:</b>\n\nBuyurtma berish yoki zallarni bron qilish uchun /start bosing yoki quyidagi <b>"🏆 FirLife Pro"</b> menyu tugmasidan foydalaning.\n\n📞 Call-markaz: +998 71 200 44 44`,
+              text: `ℹ️ <b>Yordam bo'limi:</b>\n\nZallarni bron qilish uchun /start bosing yoki quyidagi <b>"🏆 FitLife Pro"</b> menyu tugmasidan foydalaning.\n\n📞 Call-markaz: +998 71 200 44 44`,
               parse_mode: 'HTML'
             });
           } else if (text === '/admin') {
@@ -130,7 +130,7 @@ Bu yerda siz professional sport ozuqalari (Protein, BCAA, Kreatin), trenajyorlar
 
 // Startup
 async function startBot() {
-  console.log('🤖 FirLife Pro Telegram Bot ishga tushmoqda...');
+  console.log('🤖 FitLife Pro Telegram Bot ishga tushmoqda...');
   console.log(`Bot Token: ${BOT_TOKEN.substring(0, 10)}...`);
   console.log(`Admin Chat ID: ${ADMIN_CHAT_ID}`);
   console.log(`Web App URL: ${WEB_APP_URL}`);
@@ -149,7 +149,7 @@ async function startBot() {
   if (ADMIN_CHAT_ID) {
     await tgCall('sendMessage', {
       chat_id: ADMIN_CHAT_ID,
-      text: `🚀 <b>FirLife Pro Telegram Bot va Mini App faollashtirildi!</b>\n\nBot: @${me.result?.username || 'Music_finderuzb_bot'}\nAdmin ID: <code>${ADMIN_CHAT_ID}</code>\nMini App: ${WEB_APP_URL}`,
+      text: `🚀 <b>FitLife Pro Telegram Bot va Mini App faollashtirildi!</b>\n\nBot: @${me.result?.username || 'nekitekibeki_bot'}\nAdmin ID: <code>${ADMIN_CHAT_ID}</code>\nMini App: ${WEB_APP_URL}`,
       parse_mode: 'HTML'
     });
   }
