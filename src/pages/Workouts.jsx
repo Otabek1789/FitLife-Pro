@@ -318,5 +318,3 @@ export const Workouts = () => {
     </div>
   );
 };
-
-export default Workouts;

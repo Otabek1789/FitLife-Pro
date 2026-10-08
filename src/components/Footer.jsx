@@ -47,7 +47,7 @@ export const Footer = () => {
               </span>
             </Link>
             <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
-              O'zbekistondagi eng ilg'or sport va sog'liq platformasi. Shaxsiy mashg'ulotlar, BMI hisoblagich, premium sport zallari katalogi va rasmiy markazlar tarmog'i.
+              O'zbekistondagi eng ilg'or sport va sog'liq platformasi. Shaxsiy mashg'ulotlar, BMI hisoblagich, premium sport ozuqalari va rasmiy zallar tarmog'i.
             </p>
             <div className="flex items-center gap-2 text-xs font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-xl w-fit">
               <Award className="w-4 h-4" />
@@ -77,8 +77,8 @@ export const Footer = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/clubs" className="text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition">
-                  {t('nav_clubs')}
+                <Link to="/shop" className="text-slate-600 dark:text-slate-400 hover:text-emerald-500 transition">
+                  {t('nav_shop')}
                 </Link>
               </li>
               <li>

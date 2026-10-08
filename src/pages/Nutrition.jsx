@@ -332,5 +332,3 @@ export const Nutrition = () => {
     </div>
   );
 };
-
-export default Nutrition;

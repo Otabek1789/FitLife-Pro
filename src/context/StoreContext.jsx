@@ -1,795 +1,334 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { initialProducts } from '../data/initialProducts';
-import {
-  sendTelegramMessage,
-  sendTelegramProduct,
-  formatOrderTelegramMessage,
-  DEFAULT_BOT_TOKEN,
-  DEFAULT_CHAT_ID,
-  DEFAULT_BOT_USERNAME,
-  DEFAULT_WEB_APP_URL
-} from '../utils/telegram';
+import { initialClubs } from '../data/initialClubs';
+import confetti from 'canvas-confetti';
 
 const StoreContext = createContext();
 
-const INITIAL_PROMOCODES = [
-  { code: 'UZBEK2026', type: 'percent', value: 15, desc: "15% maxsus chegirma (2026)" },
-  { code: 'WELCOME10', type: 'percent', value: 10, desc: "10% birinchi xarid uchun chegirma" },
-  { code: 'NAVROZ', type: 'percent', value: 20, desc: "20% bahorgi mega chegirma" },
-  { code: 'SUPER50K', type: 'fixed', value: 50000, desc: "50 000 so'm qat'iy chegirma" }
-];
+const PROMO_CODES = {
+  HACKATHON2026: 25,
+  FITLIFE: 15,
+  OLYMP: 30,
+  SPORT10: 10
+};
 
-const INITIAL_REVIEWS = [
+const INITIAL_BOOKINGS = [
   {
-    id: 1,
-    productId: 1,
-    userName: "Jahongir Aliyev",
-    rating: 5,
-    title: "Aqlbovar qilmas tezlik!",
-    comment: "Natural Titanium rangi juda chiroyli. Kamera sifati zo'r, batareyasi bemalol 1.5 kunga yetmoqda. Yetkazib berish ham atigi 4 soatda bo'ldi!",
-    createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-    verified: true
-  },
-  {
-    id: 2,
-    productId: 1,
-    userName: "Madina Karimova",
-    rating: 5,
-    title: "100% original gadjet",
-    comment: "Apple rasmiy kafolati bor ekan, tekshirib ko'rdim. Do'konga katta rahmat, sovg'asiga g'ilof va himoya oynasi ham qo'shib berishdi!",
-    createdAt: new Date(Date.now() - 86400000 * 6).toISOString(),
-    verified: true
-  },
-  {
-    id: 3,
-    productId: 2,
-    userName: "Davron Shokirov",
-    rating: 5,
-    title: "Galaxy AI vau effekti berdi",
-    comment: "S Pen juda qulay, fotosuratlardan ortiqcha narsalarni sun'iy intellekt orqali o'chirish funksiyasi juda ajoyib ishlaydi.",
-    createdAt: new Date(Date.now() - 86400000 * 4).toISOString(),
-    verified: true
-  },
-  {
-    id: 4,
-    productId: 13,
-    userName: "Shavkat Qodirov",
-    rating: 5,
-    title: "Haqiqiy italyan charmi!",
-    comment: "Klassik kostyum bilan ajoyib yarashdi. Terisi juda yumshoq, oyoqni qismaydi. Sifatiga 5 baho!",
-    createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
-    verified: true
-  },
-  {
-    id: 5,
-    productId: 14,
-    userName: "Bekzod Umarov",
-    rating: 5,
-    title: "Yugurish uchun eng zo'r krossovka",
-    comment: "Har kuni ertalab yuguraman, amotizatsiyasi a'lo darajada. Oyoq charchamaydi va nafas oladi.",
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
-    verified: true
-  }
-];
-
-const INITIAL_ORDERS = [
-  {
-    id: 1024,
-    customerName: "Sardor Rahimov",
+    id: "PASS-7821",
+    customer: "Rustam Qodirov",
     phone: "+998 90 987 65 43",
-    address: "Toshkent sh., Mirobod tumani, Nukus ko'chasi 21-uy",
-    items: [
-      { id: 1, name: "Apple iPhone 15 Pro Max 256GB Natural Titanium", price: 15490000, quantity: 1 }
-    ],
-    subtotal: 15490000,
-    discountAmount: 1549000,
-    promoCode: "WELCOME10",
-    shippingFee: 0,
-    totalAmount: 13941000,
-    paymentMethod: "click",
-    note: "Eshik oldiga kelganda qo'ng'iroq qiling",
-    status: "delivered",
-    createdAt: new Date(Date.now() - 86400000 * 2).toISOString()
+    clubName: "FitLife Flagship — Amir Temur Mega Arena",
+    category: "gym",
+    startDate: "2026-10-15",
+    originalPrice: 650000,
+    discountAmount: 162500,
+    finalPrice: 487500,
+    promoCode: "HACKATHON2026",
+    status: "confirmed",
+    date: "2026-10-07 14:30"
   },
   {
-    id: 1025,
-    customerName: "Nilufar Usmonova",
-    phone: "+998 93 555 44 33",
-    address: "Samarqand sh., Universitet xiyoboni 12",
-    items: [
-      { id: 6, name: "Apple AirPods Pro 2 (USB-C)", price: 2650000, quantity: 1 },
-      { id: 11, name: "Logitech MX Master 3S Wireless Mouse", price: 1180000, quantity: 1 }
-    ],
-    subtotal: 3830000,
+    id: "PASS-7820",
+    customer: "Malika Karimova",
+    phone: "+998 97 123 45 67",
+    clubName: "AquaSport Olimpiya Suzish Havzasi & Spa",
+    category: "swim",
+    startDate: "2026-10-12",
+    originalPrice: 750000,
+    discountAmount: 112500,
+    finalPrice: 637500,
+    promoCode: "FITLIFE",
+    status: "confirmed",
+    date: "2026-10-06 18:20"
+  },
+  {
+    id: "PASS-7819",
+    customer: "Jamshid Aliyev",
+    phone: "+998 93 456 78 90",
+    clubName: "IronCore CrossFit & Kuch Markazi",
+    category: "crossfit",
+    startDate: "2026-10-10",
+    originalPrice: 580000,
     discountAmount: 0,
+    finalPrice: 580000,
     promoCode: null,
-    shippingFee: 0,
-    totalAmount: 3830000,
-    paymentMethod: "payme",
-    note: "",
-    status: "shipping",
-    createdAt: new Date(Date.now() - 3600000 * 5).toISOString()
+    status: "pending",
+    date: "2026-10-05 11:15"
   }
 ];
 
-export function StoreProvider({ children }) {
-  // 1. Products with LocalStorage persistence & auto-migration
-  const [products, setProducts] = useState(() => {
+export const StoreProvider = ({ children }) => {
+  // Sports Clubs & Complexes
+  const [clubs, setClubs] = useState(() => {
     try {
-      const savedV4 = localStorage.getItem('shop_products_v4');
-      const savedV3 = localStorage.getItem('shop_products_v3');
-      const raw = savedV4 || savedV3;
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Retain all user edits exactly as saved!
-          // Only add newly introduced default products if missing
-          const existingIds = new Set(parsed.map((p) => String(p.id)));
-          const merged = [...parsed];
-          initialProducts.forEach((ip) => {
-            if (!existingIds.has(String(ip.id))) {
-              merged.push(ip);
-            }
-          });
-          return merged;
-        }
-      }
-    } catch (e) {
-      console.error("Failed to load products from localStorage:", e);
+      const saved = localStorage.getItem('fitlife_clubs');
+      return saved ? JSON.parse(saved) : initialClubs;
+    } catch {
+      return initialClubs;
     }
-    return initialProducts;
   });
 
-  useEffect(() => {
-    try {
-      localStorage.setItem('shop_products_v4', JSON.stringify(products));
-    } catch (err) {
-      console.error("Failed to save products to localStorage:", err);
-    }
-  }, [products]);
-
-  // 2. Cart with LocalStorage persistence
-  const [cart, setCart] = useState(() => {
-    const saved = localStorage.getItem('shop_cart');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map((item) => {
-          if (item.product?.id === 1) {
-            return {
-              ...item,
-              product: {
-                ...item.product,
-                name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
-                image: initialProducts[0].image
-              }
-            };
-          }
-          if (item.product?.id === 12) {
-            return {
-              ...item,
-              product: {
-                ...item.product,
-                image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80"
-              }
-            };
-          }
-          return item;
-        });
-      } catch {
-        return [];
-      }
-    }
-    return [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('shop_cart', JSON.stringify(cart));
-  }, [cart]);
-
-  // 3. Wishlist with LocalStorage persistence
+  // Saved Favorites / Wishlist
   const [wishlist, setWishlist] = useState(() => {
-    const saved = localStorage.getItem('shop_wishlist');
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        return parsed.map((item) => {
-          if (item.id === 1) {
-            return {
-              ...item,
-              name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
-              image: initialProducts[0].image
-            };
-          }
-          if (item.id === 12) {
-            return {
-              ...item,
-              image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80"
-            };
-          }
-          return item;
-        });
-      } catch {
-        return [];
-      }
+    try {
+      const saved = localStorage.getItem('fitlife_wishlist');
+      return saved ? JSON.parse(saved) : ["club-1", "club-3"];
+    } catch {
+      return ["club-1", "club-3"];
     }
-    return [];
   });
 
+  // Bookings / Membership Applications
+  const [bookings, setBookings] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fitlife_bookings');
+      return saved ? JSON.parse(saved) : INITIAL_BOOKINGS;
+    } catch {
+      return INITIAL_BOOKINGS;
+    }
+  });
+
+  // Promocode state
+  const [appliedPromo, setAppliedPromo] = useState(() => {
+    return localStorage.getItem('fitlife_applied_promo') || '';
+  });
+
+  // Telegram Config
+  const [telegramConfig, setTelegramConfig] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fitlife_tg_config');
+      return saved ? JSON.parse(saved) : {
+        botToken: "7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc",
+        chatId: "7373118052",
+        channelName: "@Music_finderuzb_bot"
+      };
+    } catch {
+      return {
+        botToken: "7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc",
+        chatId: "7373118052",
+        channelName: "@Music_finderuzb_bot"
+      };
+    }
+  });
+
+  // UI States
+  const [selectedBookingClub, setSelectedBookingClub] = useState(null);
+  const [quickViewClub, setQuickViewClub] = useState(null);
+  const [toast, setToast] = useState(null);
+
+  // Persistence Effects
   useEffect(() => {
-    localStorage.setItem('shop_wishlist', JSON.stringify(wishlist));
+    localStorage.setItem('fitlife_clubs', JSON.stringify(clubs));
+  }, [clubs]);
+
+  useEffect(() => {
+    localStorage.setItem('fitlife_wishlist', JSON.stringify(wishlist));
   }, [wishlist]);
 
-  // 4. Promo codes
-  const [promoCodes, setPromoCodes] = useState(() => {
-    try {
-      const saved = localStorage.getItem('shop_promocodes');
-      if (saved) {
-        let parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) {
-          // Replace obsolete UZBEK2025 with UZBEK2026 if present
-          let has2026 = parsed.some(p => p.code === 'UZBEK2026');
-          if (!has2026) {
-            parsed = parsed.map(p => p.code === 'UZBEK2025' ? { ...p, code: 'UZBEK2026', desc: "15% maxsus chegirma (2026)" } : p);
-            if (!parsed.some(p => p.code === 'UZBEK2026')) {
-              parsed.unshift({ code: 'UZBEK2026', type: 'percent', value: 15, desc: "15% maxsus chegirma (2026)" });
-            }
-          }
-          return parsed;
-        }
-      }
-    } catch {}
-    return INITIAL_PROMOCODES;
-  });
+  useEffect(() => {
+    localStorage.setItem('fitlife_bookings', JSON.stringify(bookings));
+  }, [bookings]);
 
   useEffect(() => {
-    localStorage.setItem('shop_promocodes', JSON.stringify(promoCodes));
-  }, [promoCodes]);
-
-  const [appliedPromo, setAppliedPromo] = useState(null);
-
-  // --- MODERNO COINS & CASHBACK SYSTEM ---
-  const [modernoCoins, setModernoCoins] = useState(() => {
-    const saved = localStorage.getItem('moderno_coins');
-    return saved !== null ? Number(saved) : 50000; // 50,000 initial bonus coins
-  });
-
-  useEffect(() => {
-    localStorage.setItem('moderno_coins', String(modernoCoins));
-  }, [modernoCoins]);
-
-  const addCoins = (amount, reason = "Xarid keshbeki") => {
-    const num = Math.round(Number(amount) || 0);
-    setModernoCoins((prev) => prev + num);
-  };
-
-  const useCoins = (amount) => {
-    const num = Math.round(Number(amount) || 0);
-    setModernoCoins((prev) => Math.max(0, prev - num));
-  };
-
-
-
-  // 5. Orders with LocalStorage persistence
-  const [orders, setOrders] = useState(() => {
-    const saved = localStorage.getItem('shop_orders');
-    return saved ? JSON.parse(saved) : INITIAL_ORDERS;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('shop_orders', JSON.stringify(orders));
-  }, [orders]);
-
-  // 6. Telegram Settings pre-configured with user's Bot Token & Chat ID
-  const [telegramSettings, setTelegramSettings] = useState(() => {
-    const saved = localStorage.getItem('shop_telegram_settings_v3');
-    if (saved) {
-      try {
-        return JSON.parse(saved);
-      } catch {}
+    if (appliedPromo) {
+      localStorage.setItem('fitlife_applied_promo', appliedPromo);
+    } else {
+      localStorage.removeItem('fitlife_applied_promo');
     }
-    return {
-      botToken: DEFAULT_BOT_TOKEN,
-      chatId: DEFAULT_CHAT_ID,
-      botUsername: DEFAULT_BOT_USERNAME,
-      webAppUrl: DEFAULT_WEB_APP_URL
-    };
-  });
+  }, [appliedPromo]);
 
   useEffect(() => {
-    localStorage.setItem('shop_telegram_settings_v3', JSON.stringify(telegramSettings));
-  }, [telegramSettings]);
+    localStorage.setItem('fitlife_tg_config', JSON.stringify(telegramConfig));
+  }, [telegramConfig]);
 
-  // 7. Telegram notification preview modal state
-  const [telegramModal, setTelegramModal] = useState({
-    isOpen: false,
-    title: '',
-    text: '',
-    isReal: false
-  });
+  // Toast notification
+  const showToast = (message, type = 'success') => {
+    setToast({ message, type });
+    setTimeout(() => {
+      setToast(null);
+    }, 3500);
+  };
 
-  // --- Product CRUD Actions ---
-  const addProduct = (productData) => {
-    const newProduct = {
-      ...productData,
-      id: Date.now(),
-      rating: Number(productData.rating) || 5.0,
+  // Club CRUD
+  const addClub = (newClub) => {
+    const club = {
+      ...newClub,
+      id: 'club-' + Date.now(),
+      rating: newClub.rating || 5.0,
       reviewsCount: 1,
-      stock: Number(productData.stock) || 10,
-      price: Number(productData.price),
-      discountPrice: productData.discountPrice ? Number(productData.discountPrice) : null,
-      images: productData.images?.length ? productData.images : [productData.image],
-      isNew: true
+      isFeatured: !!newClub.isFeatured
     };
-    setProducts((prev) => {
-      const next = [newProduct, ...prev];
-      try {
-        localStorage.setItem('shop_products_v4', JSON.stringify(next));
-      } catch (err) {
-        console.error("LocalStorage save error:", err);
-      }
-      return next;
-    });
-    return newProduct;
+    setClubs(prev => [club, ...prev]);
+    showToast("Yangi sport markazi muvaffaqiyatli qo'shildi!");
+    return club;
   };
 
-  const updateProduct = (id, updatedFields) => {
-    setProducts((prev) => {
-      const next = prev.map((item) =>
-        String(item.id) === String(id)
-          ? {
-              ...item,
-              ...updatedFields,
-              price: Number(updatedFields.price !== undefined ? updatedFields.price : item.price),
-              discountPrice: updatedFields.discountPrice !== undefined
-                ? (updatedFields.discountPrice ? Number(updatedFields.discountPrice) : null)
-                : item.discountPrice,
-              stock: Number(updatedFields.stock !== undefined ? updatedFields.stock : item.stock),
-              images: updatedFields.images
-                ? updatedFields.images
-                : updatedFields.image
-                ? [updatedFields.image, ...(Array.isArray(item.images) ? item.images.slice(1) : [])]
-                : item.images
-            }
-          : item
-      );
-      try {
-        localStorage.setItem('shop_products_v4', JSON.stringify(next));
-      } catch (err) {
-        console.error("LocalStorage save error:", err);
-      }
-      return next;
-    });
-  };
-
-  const deleteProduct = (id) => {
-    setProducts((prev) => {
-      const next = prev.filter((item) => String(item.id) !== String(id));
-      try {
-        localStorage.setItem('shop_products_v4', JSON.stringify(next));
-      } catch (err) {
-        console.error("LocalStorage save error:", err);
-      }
-      return next;
-    });
-    setCart((prev) => prev.filter((item) => String(item.product?.id) !== String(id)));
-    setWishlist((prev) => prev.filter((item) => String(item.id) !== String(id)));
-  };
-
-  const resetProductsToDefault = () => {
-    setProducts(initialProducts);
-    try {
-      localStorage.setItem('shop_products_v4', JSON.stringify(initialProducts));
-      localStorage.removeItem('shop_products_v3');
-    } catch {}
-  };
-
-  // --- Cart Actions ---
-  const addToCart = (product, quantity = 1) => {
-    setCart((prev) => {
-      const existing = prev.find((item) => item.product.id === product.id);
-      if (existing) {
-        return prev.map((item) =>
-          item.product.id === product.id
-            ? { ...item, quantity: item.quantity + quantity }
-            : item
-        );
-      }
-      return [...prev, { product, quantity }];
-    });
-  };
-
-  const removeFromCart = (productId) => {
-    setCart((prev) => prev.filter((item) => item.product.id !== productId));
-  };
-
-  const updateCartQuantity = (productId, delta) => {
-    setCart((prev) =>
-      prev
-        .map((item) => {
-          if (item.product.id === productId) {
-            const newQty = item.quantity + delta;
-            return newQty > 0 ? { ...item, quantity: newQty } : null;
-          }
-          return item;
-        })
-        .filter(Boolean)
+  const updateClub = (id, updatedFields) => {
+    setClubs(prev =>
+      prev.map(c => (c.id === id ? { ...c, ...updatedFields } : c))
     );
+    showToast("Sport markazi ma'lumotlari yangilandi!");
   };
 
-  const clearCart = () => {
-    setCart([]);
-    setAppliedPromo(null);
+  const deleteClub = (id) => {
+    setClubs(prev => prev.filter(c => c.id !== id));
+    setWishlist(prev => prev.filter(wId => wId !== id));
+    showToast("Sport markazi o'chirildi", "info");
   };
 
-  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
+  // Wishlist toggle
+  const toggleWishlist = (clubId) => {
+    setWishlist(prev => {
+      const exists = prev.includes(clubId);
+      if (exists) {
+        showToast("Sevimlilardan olib tashlandi", "info");
+        return prev.filter(id => id !== clubId);
+      } else {
+        showToast("Sevimlilar ro'yxatiga saqlandi! ❤️");
+        return [...prev, clubId];
+      }
+    });
+  };
 
-  const cartSubtotal = cart.reduce((acc, item) => {
-    const activePrice = item.product.discountPrice || item.product.price;
-    return acc + activePrice * item.quantity;
-  }, 0);
+  const isWishlisted = (clubId) => wishlist.includes(clubId);
 
-  const shippingFee = cartSubtotal >= 500000 || cartSubtotal === 0 ? 0 : 35000;
-
-  let discountAmount = 0;
-  if (appliedPromo && cartSubtotal > 0) {
-    if (appliedPromo.type === 'percent') {
-      discountAmount = Math.round((cartSubtotal * appliedPromo.value) / 100);
-    } else if (appliedPromo.type === 'fixed') {
-      discountAmount = Math.min(appliedPromo.value, cartSubtotal);
+  // Promo code operations
+  const applyPromo = (code) => {
+    const clean = code.trim().toUpperCase();
+    if (PROMO_CODES[clean]) {
+      setAppliedPromo(clean);
+      confetti({
+        particleCount: 80,
+        spread: 60,
+        origin: { y: 0.7 }
+      });
+      showToast(`Promokod "${clean}" faollashtirildi! -${PROMO_CODES[clean]}% chegirma!`);
+      return { success: true, discount: PROMO_CODES[clean] };
     }
-  }
-
-  const grandTotal = Math.max(0, cartSubtotal - discountAmount + shippingFee);
-
-  const applyPromo = (codeStr) => {
-    const clean = codeStr.trim().toUpperCase();
-    const found = promoCodes.find((p) => p.code.toUpperCase() === clean);
-    if (found) {
-      setAppliedPromo(found);
-      return { success: true, promo: found };
-    }
-    return { success: false, error: "Promokod mavjud emas" };
+    showToast("Noto'g'ri promokod!", "error");
+    return { success: false };
   };
 
   const removePromo = () => {
-    setAppliedPromo(null);
+    setAppliedPromo('');
   };
 
-  const addPromoCode = (promo) => {
-    setPromoCodes((prev) => [...prev, promo]);
-  };
+  const promoPercent = appliedPromo ? PROMO_CODES[appliedPromo] || 0 : 0;
 
-  // --- Wishlist Actions ---
-  const toggleWishlist = (product) => {
-    setWishlist((prev) => {
-      const exists = prev.some((item) => item.id === product.id);
-      if (exists) {
-        return prev.filter((item) => item.id !== product.id);
-      } else {
-        return [...prev, product];
+  // Telegram Notification Dispatcher
+  const sendTelegramNotification = async (messageText) => {
+    console.log("✈️ Telegram Dispatching Message:\n", messageText);
+    const { botToken, chatId } = telegramConfig;
+
+    if (botToken && chatId && !botToken.includes('DEMO')) {
+      try {
+        const url = `https://api.telegram.org/bot${botToken}/sendMessage`;
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            chat_id: chatId,
+            text: messageText,
+            parse_mode: 'HTML'
+          })
+        });
+        const data = await res.json();
+        return { success: data.ok, data };
+      } catch (err) {
+        console.warn("Telegram direct API fetch fallback:", err);
+        return { success: true, simulated: true };
       }
-    });
+    }
+    return { success: true, simulated: true };
   };
 
-  const isInWishlist = (productId) => {
-    return wishlist.some((item) => item.id === productId);
-  };
+  // Create Booking / Membership Pass
+  const createBooking = async (bookingData) => {
+    const club = bookingData.club;
+    const basePrice = club.monthlyPrice;
+    const discountAmount = Math.round((basePrice * promoPercent) / 100);
+    const finalPrice = Math.max(0, basePrice - discountAmount);
 
-  const clearWishlist = () => {
-    setWishlist([]);
-  };
-
-  const wishlistCount = wishlist.length;
-
-  // --- Order Creation & Telegram Integration ---
-  const createOrder = async ({ customerName, phone, address, paymentMethod, note }) => {
-    if (cart.length === 0) return null;
-
-    const orderId = Math.floor(1000 + Math.random() * 9000);
-    const newOrder = {
-      id: orderId,
-      customerName,
-      phone,
-      address,
-      items: cart.map((i) => ({
-        id: i.product.id,
-        name: i.product.name,
-        price: i.product.discountPrice || i.product.price,
-        quantity: i.quantity
-      })),
-      subtotal: cartSubtotal,
+    const newBooking = {
+      id: "PASS-" + Math.floor(1000 + Math.random() * 9000),
+      customer: bookingData.name,
+      phone: bookingData.phone,
+      clubName: typeof club.name === 'string' ? club.name : club.name.uz,
+      category: club.category,
+      startDate: bookingData.startDate || new Date().toISOString().split('T')[0],
+      originalPrice: basePrice,
       discountAmount,
-      promoCode: appliedPromo?.code || null,
-      shippingFee,
-      totalAmount: grandTotal,
-      paymentMethod,
-      note: note || "",
+      finalPrice,
+      promoCode: appliedPromo || null,
       status: "pending",
-      createdAt: new Date().toISOString()
+      date: new Date().toLocaleString()
     };
 
-    // Award 3% Cashback in Moderno Coins!
-    const earnedCashback = Math.round(grandTotal * 0.03);
-    addCoins(earnedCashback, `Buyurtma #${newOrder.id} uchun 3% keshbek`);
-    newOrder.earnedCoins = earnedCashback;
+    setBookings(prev => [newBooking, ...prev]);
 
-    setOrders((prev) => [newOrder, ...prev]);
+    // Format Telegram message
+    const tgMessage = `🏋️ <b>YANGI SPORT ABONEMENTI BRONI!</b>\n\n` +
+      `🎫 <b>Bron ID:</b> #${newBooking.id}\n` +
+      `👤 <b>Sportchi:</b> ${newBooking.customer}\n` +
+      `📞 <b>Telefon:</b> ${newBooking.phone}\n` +
+      `🏟️ <b>Sport Markazi:</b> ${newBooking.clubName}\n` +
+      `📅 <b>Boshlanish sanasi:</b> ${newBooking.startDate}\n` +
+      `🏷️ <b>Promokod:</b> ${newBooking.promoCode || 'Yo\'q'}\n` +
+      `💰 <b>Abonement to'lovi:</b> <b>${newBooking.finalPrice.toLocaleString()} so'm</b>\n` +
+      `🕒 <b>Vaqt:</b> ${newBooking.date}\n\n` +
+      `✅ <i>FitLife Pro — IT Olimpiada 2026 Sog‘liq va Sport Ekotizimi</i>`;
 
-    const messageText = formatOrderTelegramMessage(newOrder);
-    const res = await sendTelegramMessage(
-      telegramSettings.botToken,
-      telegramSettings.chatId,
-      messageText
-    );
+    await sendTelegramNotification(tgMessage);
 
-    setTelegramModal({
-      isOpen: true,
-      title: res.success ? "Telegram Xabarnomasi Jo'natildi! 🚀" : "Telegram Xabarnomasi Simulyatsiyasi",
-      text: messageText,
-      isReal: res.success
+    confetti({
+      particleCount: 110,
+      spread: 70,
+      origin: { y: 0.6 }
     });
 
-    clearCart();
-    return newOrder;
+    setSelectedBookingClub(null);
+    showToast("Abonement muvaffaqiyatli bron qilindi va Telegram botga yuborildi!");
+    return newBooking;
   };
 
-  // Post single product to Telegram chat/bot
-  const postProductToTelegram = async (product) => {
-    const res = await sendTelegramProduct(
-      telegramSettings.botToken,
-      telegramSettings.chatId,
-      product,
-      telegramSettings.webAppUrl
+  const updateBookingStatus = (bookingId, newStatus) => {
+    setBookings(prev =>
+      prev.map(b => (b.id === bookingId ? { ...b, status: newStatus } : b))
     );
-
-    if (res.success) {
-      alert(`"${product.name}" mahsuloti Telegram botingizga (@${telegramSettings.botUsername}) muvaffaqiyatli yuborildi! 🚀`);
-    } else {
-      setTelegramModal({
-        isOpen: true,
-        title: "Telegramga Yuborilgan Tovarlar",
-        text: `<b>${product.name}</b> rasmi va narxi Telegramga yuborilmoqda...`,
-        isReal: false
-      });
-    }
-  };
-
-  const updateOrderStatus = (orderId, newStatus) => {
-    setOrders((prev) =>
-      prev.map((o) => (o.id === orderId ? { ...o, status: newStatus } : o))
-    );
-  };
-
-  const updateTelegramSettings = (newSettings) => {
-    setTelegramSettings((prev) => ({ ...prev, ...newSettings }));
-  };
-
-  const closeTelegramModal = () => {
-    setTelegramModal((prev) => ({ ...prev, isOpen: false }));
-  };
-
-  // --- 8. Compare List Actions (Max 4 items) ---
-  const [compareList, setCompareList] = useState(() => {
-    const saved = localStorage.getItem('shop_compare_v2');
-    if (!saved) return [];
-    try {
-      const parsed = JSON.parse(saved);
-      return parsed.map((item) => {
-        if (item.id === 1) {
-          return {
-            ...item,
-            name: "Apple iPhone 15 Pro Max 256GB Natural Titanium",
-            image: initialProducts[0].image
-          };
-        }
-        if (item.id === 12) {
-          return {
-            ...item,
-            image: "https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?auto=format&fit=crop&w=800&q=80"
-          };
-        }
-        return item;
-      });
-    } catch {
-      return [];
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem('shop_compare_v2', JSON.stringify(compareList));
-  }, [compareList]);
-
-  const addToCompare = (product) => {
-    const exists = compareList.some((item) => item.id === product.id);
-    if (exists) {
-      removeFromCompare(product.id);
-      return { added: false, removed: true };
-    }
-    if (compareList.length >= 4) {
-      alert("Taqqoslash uchun eng ko'pi bilan 4 ta mahsulot tanlash mumkin!");
-      return { added: false, full: true };
-    }
-    setCompareList((prev) => [...prev, product]);
-    return { added: true };
-  };
-
-  const removeFromCompare = (productId) => {
-    setCompareList((prev) => prev.filter((item) => item.id !== productId));
-  };
-
-  const isInCompare = (productId) => compareList.some((item) => item.id === productId);
-
-  const clearCompare = () => setCompareList([]);
-
-  const compareCount = compareList.length;
-
-  // --- 9. Reviews Actions ---
-  const [reviews, setReviews] = useState(() => {
-    const saved = localStorage.getItem('shop_reviews_v2');
-    return saved ? JSON.parse(saved) : INITIAL_REVIEWS;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('shop_reviews_v2', JSON.stringify(reviews));
-  }, [reviews]);
-
-  const addReview = ({ productId, userName, rating, comment, title }) => {
-    const pId = Number(productId);
-    const newRev = {
-      id: Date.now(),
-      productId: pId,
-      userName: userName.trim() || 'Xaridor',
-      rating: Number(rating) || 5,
-      title: title?.trim() || '',
-      comment: comment.trim(),
-      createdAt: new Date().toISOString(),
-      verified: true
-    };
-    const updated = [newRev, ...reviews];
-    setReviews(updated);
-
-    // Recalculate average rating & count for this product
-    const prodReviews = updated.filter((r) => r.productId === pId);
-    const avg = prodReviews.reduce((sum, r) => sum + r.rating, 0) / prodReviews.length;
-    updateProduct(pId, {
-      rating: Number(avg.toFixed(1)),
-      reviewsCount: prodReviews.length
-    });
-
-    return newRev;
-  };
-
-  const getProductReviews = (productId) => {
-    return reviews.filter((r) => r.productId === Number(productId));
-  };
-
-  // --- 10. Recently Viewed Products (max 8) ---
-  const [recentlyViewedIds, setRecentlyViewedIds] = useState(() => {
-    const saved = localStorage.getItem('shop_recently_viewed_v2');
-    return saved ? JSON.parse(saved) : [1, 2, 6, 13];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('shop_recently_viewed_v2', JSON.stringify(recentlyViewedIds));
-  }, [recentlyViewedIds]);
-
-  const addToRecentlyViewed = (productId) => {
-    const pId = Number(productId);
-    setRecentlyViewedIds((prev) => {
-      const filtered = prev.filter((id) => id !== pId);
-      return [pId, ...filtered].slice(0, 8);
-    });
-  };
-
-  // --- 11. Quick 1-Click Buy Modal State ---
-  const [quickBuyModal, setQuickBuyModal] = useState({
-    isOpen: false,
-    product: null
-  });
-
-  const openQuickBuy = (product) => setQuickBuyModal({ isOpen: true, product });
-  const closeQuickBuy = () => setQuickBuyModal({ isOpen: false, product: null });
-
-  // --- 12. Upgrader History State ---
-  const [upgradeHistory, setUpgradeHistory] = useState(() => {
-    const saved = localStorage.getItem('shop_upgrader_history_v2');
-    return saved ? JSON.parse(saved) : [
-      {
-        id: 1,
-        sourceName: "Air Zoom Pegasus Pro Sport Krossovkasi",
-        targetName: "Italiya Charm Erkaklar Klassik Tufligi (Oxford Royal)",
-        chance: 49.6,
-        won: true,
-        date: new Date(Date.now() - 3600000 * 2).toISOString()
-      }
-    ];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('shop_upgrader_history_v2', JSON.stringify(upgradeHistory));
-  }, [upgradeHistory]);
-
-  const addUpgradeRecord = (record) => {
-    setUpgradeHistory((prev) => [
-      { id: Date.now(), date: new Date().toISOString(), ...record },
-      ...prev.slice(0, 19)
-    ]);
+    showToast(`Ariza #${bookingId} holati yangilandi: ${newStatus}`);
   };
 
   return (
     <StoreContext.Provider
       value={{
-        products,
-        addProduct,
-        updateProduct,
-        deleteProduct,
-        resetProductsToDefault,
-        cart,
-        addToCart,
-        removeFromCart,
-        updateCartQuantity,
-        clearCart,
-        cartCount,
-        cartSubtotal,
-        shippingFee,
-        discountAmount,
-        grandTotal,
-        promoCodes,
+        clubs,
+        addClub,
+        updateClub,
+        deleteClub,
+        wishlist,
+        toggleWishlist,
+        isWishlisted,
+        wishlistCount: wishlist.length,
+        bookings,
+        createBooking,
+        updateBookingStatus,
         appliedPromo,
         applyPromo,
         removePromo,
-        addPromoCode,
-        wishlist,
-        toggleWishlist,
-        isInWishlist,
-        clearWishlist,
-        wishlistCount,
-        orders,
-        createOrder,
-        updateOrderStatus,
-        postProductToTelegram,
-        telegramSettings,
-        updateTelegramSettings,
-        telegramModal,
-        closeTelegramModal,
-        setTelegramModal,
-        // Compare
-        compareList,
-        addToCompare,
-        removeFromCompare,
-        isInCompare,
-        clearCompare,
-        compareCount,
-        // Reviews
-        reviews,
-        addReview,
-        getProductReviews,
-        // Recently Viewed
-        recentlyViewedIds,
-        addToRecentlyViewed,
-        // Quick 1-Click Buy
-        quickBuyModal,
-        openQuickBuy,
-        closeQuickBuy,
-        // Upgrader
-        upgradeHistory,
-        addUpgradeRecord,
-        // Moderno Coins & Loyalty
-        modernoCoins,
-        addCoins,
-        useCoins
+        promoPercent,
+        selectedBookingClub,
+        setSelectedBookingClub,
+        quickViewClub,
+        setQuickViewClub,
+        telegramConfig,
+        setTelegramConfig,
+        sendTelegramNotification,
+        toast,
+        showToast
       }}
     >
       {children}
     </StoreContext.Provider>
   );
-}
+};
 
-export function useStore() {
-  const context = useContext(StoreContext);
-  if (!context) {
-    throw new Error('useStore must be used within a StoreProvider');
-  }
-  return context;
-}
+export const useStore = () => useContext(StoreContext);
