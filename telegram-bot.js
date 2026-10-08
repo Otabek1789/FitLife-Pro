@@ -1,12 +1,12 @@
 /**
  * FirLife Pro — Telegram Bot & Mini App Server
- * Token: 7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc
+ * Token: 8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4
  * Chat ID: 7373118052
- * Bot: @Music_finderuzb_bot
+ * Bot: @nekitekibeki_bot
  * Title: FirLife Pro
  */
 
-const BOT_TOKEN = process.env.BOT_TOKEN || '7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc';
+const BOT_TOKEN = process.env.BOT_TOKEN || '8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4';
 const ADMIN_CHAT_ID = process.env.CHAT_ID || '7373118052';
 // Default WebApp URL deployed on Vercel / Live
 const WEB_APP_URL = process.env.WEB_APP_URL || 'https://moderno-three.vercel.app';

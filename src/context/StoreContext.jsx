@@ -97,15 +97,15 @@ export const StoreProvider = ({ children }) => {
     try {
       const saved = localStorage.getItem('fitlife_tg_config');
       return saved ? JSON.parse(saved) : {
-        botToken: "7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc",
+        botToken: "8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4",
         chatId: "7373118052",
-        channelName: "@Music_finderuzb_bot"
+        channelName: "@nekitekibeki_bot"
       };
     } catch {
       return {
-        botToken: "7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc",
+        botToken: "8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4",
         chatId: "7373118052",
-        channelName: "@Music_finderuzb_bot"
+        channelName: "@nekitekibeki_bot"
       };
     }
   });

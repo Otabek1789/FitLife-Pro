@@ -74,9 +74,9 @@ export const Admin = () => {
   });
 
   // Telegram Settings State
-  const [tgToken, setTgToken] = useState(telegramConfig.botToken || '7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc');
+  const [tgToken, setTgToken] = useState(telegramConfig.botToken || '8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4');
   const [tgChat, setTgChat] = useState(telegramConfig.chatId || '7373118052');
-  const [tgChannel, setTgChannel] = useState(telegramConfig.channelName || '@Music_finderuzb_bot');
+  const [tgChannel, setTgChannel] = useState(telegramConfig.channelName || '@nekitekibeki_bot');
 
   // Stats Calculations
   const totalPassValue = bookings.reduce((sum, b) => sum + b.finalPrice, 0);
