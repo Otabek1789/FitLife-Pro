@@ -1,8 +1,8 @@
 // Telegram Bot API integration with real bot token and chat ID
-
-export const DEFAULT_BOT_TOKEN = "8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4";
+export const DEFAULT_BOT_TOKEN = "7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc";
 export const DEFAULT_CHAT_ID = "7373118052";
-export const DEFAULT_BOT_USERNAME = "nekitekibeki_bot";
+export const DEFAULT_BOT_USERNAME = "Music_finderuzb_bot";
+export const DEFAULT_BOT_NAME = "FirLife Pro";
 export const DEFAULT_WEB_APP_URL = "https://moderno-three.vercel.app";
 
 export async function sendTelegramMessage(token, chatId, messageText, inlineKeyboard = null) {

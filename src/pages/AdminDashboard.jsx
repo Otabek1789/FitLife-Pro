@@ -1237,11 +1237,11 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                   type="text"
                   value={tgToken}
                   onChange={(e) => setTgToken(e.target.value)}
-                  placeholder="8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4"
+                  placeholder="7097812277:AAE_boKr0Tl8ZJTTR95gOPjuqPeVWZRVawc"
                   className="w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
                 <span className="text-[11px] text-slate-400 mt-1 block">
-                  Botingiz: <b>@nekitekibeki_bot</b>
+                  Botingiz: <b>@Music_finderuzb_bot</b> (FirLife Pro)
                 </span>
               </div>
 
@@ -1303,13 +1303,13 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                 </button>
 
                 <a
-                  href="https://t.me/nekitekibeki_bot?start=admin"
+                  href="https://t.me/Music_finderuzb_bot?start=admin"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold text-xs sm:text-sm transition flex items-center justify-center gap-2"
                 >
                   <ExternalLink className="w-4 h-4 text-sky-500" />
-                  <span>Botga Kirish (@nekitekibeki_bot)</span>
+                  <span>Botga Kirish (@Music_finderuzb_bot)</span>
                 </a>
               </div>
             </form>

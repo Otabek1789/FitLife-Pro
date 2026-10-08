@@ -282,7 +282,7 @@ export function StoreProvider({ children }) {
 
   // 6. Telegram Settings pre-configured with user's Bot Token & Chat ID
   const [telegramSettings, setTelegramSettings] = useState(() => {
-    const saved = localStorage.getItem('shop_telegram_settings_v2');
+    const saved = localStorage.getItem('shop_telegram_settings_v3');
     if (saved) {
       try {
         return JSON.parse(saved);
@@ -297,7 +297,7 @@ export function StoreProvider({ children }) {
   });
 
   useEffect(() => {
-    localStorage.setItem('shop_telegram_settings_v2', JSON.stringify(telegramSettings));
+    localStorage.setItem('shop_telegram_settings_v3', JSON.stringify(telegramSettings));
   }, [telegramSettings]);
 
   // 7. Telegram notification preview modal state

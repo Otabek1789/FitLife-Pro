@@ -205,26 +205,26 @@ export default function Navbar() {
               </span>
             </span>
             <a
-              href="https://t.me/nekitekibeki_bot?start=website"
+              href="https://t.me/Music_finderuzb_bot?start=website"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 hover:bg-white text-white hover:text-indigo-700 text-[11px] font-bold transition shadow-xs whitespace-nowrap active:scale-95 animate-glow-amber"
             >
               <Send className="w-3 h-3" />
-              <span>Botni Ochish</span>
+              <span>FirLife Pro</span>
             </a>
           </div>
 
           {/* Right Telegram Link */}
           <div className="hidden lg:flex items-center gap-1.5 text-[11px] text-white/90 shrink-0 ml-auto">
-            <span>🤖 Telegram Bot:</span>
+            <span>🤖 FirLife Pro Bot:</span>
             <a
-              href="https://t.me/nekitekibeki_bot?start=website"
+              href="https://t.me/Music_finderuzb_bot?start=website"
               target="_blank"
               rel="noopener noreferrer"
               className="underline font-bold hover:text-amber-200 transition-colors"
             >
-              @nekitekibeki_bot
+              @Music_finderuzb_bot
             </a>
           </div>
 
