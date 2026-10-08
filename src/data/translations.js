@@ -3,15 +3,15 @@ export const translations = {
     // Navigation
     nav_home: "Bosh sahifa",
     nav_workouts: "Mashg'ulotlar",
-    nav_nutrition: "Sog'lom Oziqlanish",
-    nav_clubs: "Zallar & Dasturlar",
-    nav_contact: "Filiallar & Xarita",
-    nav_admin: "Admin Panel",
+    nav_nutrition: "Ovqatlanish",
+    nav_clubs: "Sport Zallari",
+    nav_contact: "Xarita & Aloqa",
+    nav_admin: "Admin",
     nav_login: "Kirish",
     nav_register: "Ro'yxatdan o'tish",
     nav_logout: "Chiqish",
     nav_wishlist: "Sevimlilar",
-    nav_booking: "Abonement Bron",
+    nav_booking: "Abonement",
 
     // Hero
     hero_badge: "🔥 IT Olimpiada 2026 Maxsus Loyihasi",
@@ -189,15 +189,15 @@ export const translations = {
     // Navigation
     nav_home: "Главная",
     nav_workouts: "Тренировки",
-    nav_nutrition: "Здоровое Питание",
-    nav_clubs: "Клубы & Программы",
-    nav_contact: "Филиалы & Карта",
-    nav_admin: "Админ Панель",
+    nav_nutrition: "Питание",
+    nav_clubs: "Спортзалы",
+    nav_contact: "Карта & Связь",
+    nav_admin: "Админ",
     nav_login: "Вход",
     nav_register: "Регистрация",
     nav_logout: "Выход",
     nav_wishlist: "Избранное",
-    nav_booking: "Бронь Абонемента",
+    nav_booking: "Абонемент",
 
     // Hero
     hero_badge: "🔥 Специальный Проект для IT Олимпиады 2026",
@@ -375,15 +375,15 @@ export const translations = {
     // Navigation
     nav_home: "Home",
     nav_workouts: "Workouts",
-    nav_nutrition: "Nutrition & Diet",
-    nav_clubs: "Gyms & Programs",
-    nav_contact: "Branches & Map",
-    nav_admin: "Admin Dashboard",
+    nav_nutrition: "Nutrition",
+    nav_clubs: "Gyms",
+    nav_contact: "Map & Contact",
+    nav_admin: "Admin",
     nav_login: "Sign In",
     nav_register: "Register",
     nav_logout: "Sign Out",
     nav_wishlist: "Favorites",
-    nav_booking: "Membership Pass",
+    nav_booking: "Pass",
 
     // Hero
     hero_badge: "🔥 Special Project for IT Olympiad 2026",
