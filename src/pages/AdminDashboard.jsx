@@ -193,7 +193,7 @@ export default function AdminDashboard() {
   // Add / Edit Product Form State
   const [productForm, setProductForm] = useState({
     name: '',
-    category: 'nutrition',
+    category: 'smartphones',
     price: '',
     discountPrice: '',
     stock: 10,
@@ -1489,15 +1489,12 @@ Telegram Bot integratsiyasi muvaffaqiyatli ishlamoqda! ✅
                         onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
                         className="w-full appearance-none pl-3.5 pr-8 py-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 text-xs font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                       >
-                        <option value="nutrition">Protein & Ozuqa (Nutrition)</option>
-                        <option value="equipment">Trenajyor & Anjomlar (Equipment)</option>
-                        <option value="passes">Zallarga Abonementlar (Passes)</option>
-                        <option value="smartwatches">Aqlli soatlar & Fitnes (Trackers)</option>
-                        <option value="apparel">Sport Kiyimlari (Apparel)</option>
-                        <option value="vitamins">Vitaminlar & Salomatlik (Vitamins)</option>
-                        <option value="accessories">Aksessuarlar (Accessories)</option>
-                        <option value="smartphones">Smartfonlar & Gadjetlar</option>
+                        <option value="smartphones">Smartfonlar</option>
                         <option value="laptops">Noutbuklar</option>
+                        <option value="audio">Quloqchinlar</option>
+                        <option value="watches">Aqlli soatlar</option>
+                        <option value="appliances">Maishiy texnika</option>
+                        <option value="accessories">Aksessuarlar</option>
                       </select>
                       <ChevronDown className="w-4 h-4 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                     </div>

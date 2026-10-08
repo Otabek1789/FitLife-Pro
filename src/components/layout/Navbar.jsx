@@ -18,7 +18,6 @@ import {
   ArrowRight,
   Send,
   Scale,
-  Activity,
   Rocket,
   Volume2,
   VolumeX,
@@ -125,22 +124,13 @@ export default function Navbar() {
 
   const interactiveTools = [
     {
-      to: '/workouts',
-      title: "Mashg'ulotlar & Taymer",
-      desc: "Interaktiv taymer va rep tracker",
-      icon: Activity,
-      badge: 'PRO 💪',
-      color: 'from-emerald-600 to-teal-600',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-    },
-    {
-      to: '/nutrition',
-      title: "BMI & Kaloriya Hisoblagich",
-      desc: "Tana indeksi va kunlik norma",
-      icon: Scale,
-      badge: 'AI 🥗',
-      color: 'from-cyan-600 to-blue-600',
-      badgeColor: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+      to: '/builder',
+      title: 'PC Builder Studio',
+      desc: "Kompyuter yig'ish va FPS tester",
+      icon: Gamepad2,
+      badge: 'Yangi 🎮',
+      color: 'from-blue-600 to-indigo-600',
+      badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
     },
     {
       to: '/mystery-box',
@@ -152,8 +142,17 @@ export default function Navbar() {
       badgeColor: 'bg-amber-500/20 text-amber-300 border-amber-500/30'
     },
     {
+      to: '/trade-in',
+      title: 'Trade-In Kalkulyator',
+      desc: 'Eski gadjetni yangisiga almashtirish',
+      icon: RefreshCw,
+      badge: 'Almashish 🔄',
+      color: 'from-emerald-500 to-teal-600',
+      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+    },
+    {
       to: '/battle',
-      title: 'Sport Gear & Gadget Battle',
+      title: 'Gadget Battle Arena',
       desc: 'Flagmanlar yakkama-yak jangi',
       icon: Swords,
       badge: 'VS ⚔️',
@@ -161,27 +160,9 @@ export default function Navbar() {
       badgeColor: 'bg-purple-500/20 text-purple-300 border-purple-500/30'
     },
     {
-      to: '/builder',
-      title: 'Sport & PC Builder',
-      desc: "Jihozlar to'plami yig'ish",
-      icon: Gamepad2,
-      badge: 'Yangi 🎮',
-      color: 'from-blue-600 to-indigo-600',
-      badgeColor: 'bg-blue-500/20 text-blue-400 border-blue-500/30'
-    },
-    {
-      to: '/trade-in',
-      title: 'Trade-In Kalkulyator',
-      desc: 'Eski jihozni yangisiga almashtirish',
-      icon: RefreshCw,
-      badge: 'Almashish 🔄',
-      color: 'from-emerald-500 to-teal-600',
-      badgeColor: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-    },
-    {
       to: '/upgrader',
       title: "Upgrader O'yini",
-      desc: 'Darajani oshirish & omad',
+      desc: 'Gadjetni kuchaytirish & omad',
       icon: Rocket,
       badge: 'Omad 🚀',
       color: 'from-indigo-600 to-violet-600',
@@ -197,8 +178,7 @@ export default function Navbar() {
   const navLinks = [
     { to: '/', label: t('nav.home') },
     { to: '/shop', label: t('nav.shop') },
-    { to: '/workouts', label: "Mashg'ulotlar" },
-    { to: '/nutrition', label: "BMI & Dieta" },
+    { to: '/compare', label: t('nav.compare'), badge: compareCount },
     { to: '/orders', label: t('nav.orders') },
     { to: '/about', label: t('nav.about') },
     { to: '/contact', label: t('nav.contact') }
@@ -311,7 +291,7 @@ export default function Navbar() {
                   setIsToolsDropdownOpen(!isToolsDropdownOpen);
                 }}
                 className={`px-2.5 xl:px-3 py-2 rounded-xl text-xs xl:text-sm font-bold whitespace-nowrap shrink-0 transition-all flex items-center gap-1.5 ${
-                  ['/workouts', '/nutrition', '/builder', '/mystery-box', '/trade-in', '/battle', '/upgrader'].includes(location.pathname)
+                  ['/builder', '/mystery-box', '/trade-in', '/battle', '/upgrader'].includes(location.pathname)
                     ? 'bg-gradient-to-r from-purple-500/20 via-indigo-500/20 to-pink-500/20 text-purple-600 dark:text-purple-400 border border-purple-500/30 shadow-xs'
                     : 'text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800/60'
                 }`}
