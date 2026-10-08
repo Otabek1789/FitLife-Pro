@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { initialClubs } from '../data/initialClubs';
+import { initialProducts } from '../data/initialProducts';
 import confetti from 'canvas-confetti';
 
 const StoreContext = createContext();
@@ -18,6 +19,7 @@ const INITIAL_BOOKINGS = [
     phone: "+998 90 987 65 43",
     clubName: "FitLife Flagship — Amir Temur Mega Arena",
     category: "gym",
+    type: "club_pass",
     startDate: "2026-10-15",
     originalPrice: 650000,
     discountAmount: 162500,
@@ -32,6 +34,7 @@ const INITIAL_BOOKINGS = [
     phone: "+998 97 123 45 67",
     clubName: "AquaSport Olimpiya Suzish Havzasi & Spa",
     category: "swim",
+    type: "club_pass",
     startDate: "2026-10-12",
     originalPrice: 750000,
     discountAmount: 112500,
@@ -41,11 +44,27 @@ const INITIAL_BOOKINGS = [
     date: "2026-10-06 18:20"
   },
   {
+    id: "ORD-9410",
+    customer: "Davron Toshpulatov",
+    phone: "+998 90 123 45 67",
+    clubName: "Optimum Nutrition Gold Standard Whey Protein",
+    category: "nutrition",
+    type: "product_order",
+    startDate: "Yetkazib berish: 24 soat",
+    originalPrice: 1150000,
+    discountAmount: 170000,
+    finalPrice: 980000,
+    promoCode: "FITLIFE",
+    status: "confirmed",
+    date: "2026-10-06 11:40"
+  },
+  {
     id: "PASS-7819",
     customer: "Jamshid Aliyev",
     phone: "+998 93 456 78 90",
     clubName: "IronCore CrossFit & Kuch Markazi",
     category: "crossfit",
+    type: "club_pass",
     startDate: "2026-10-10",
     originalPrice: 580000,
     discountAmount: 0,
@@ -73,17 +92,33 @@ export const StoreProvider = ({ children }) => {
     }
   });
 
+  // Sports Products & Supplements
+  const [products, setProducts] = useState(() => {
+    try {
+      const saved = localStorage.getItem('fitlife_products');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.id) {
+          return parsed;
+        }
+      }
+      return initialProducts;
+    } catch {
+      return initialProducts;
+    }
+  });
+
   // Saved Favorites / Wishlist
   const [wishlist, setWishlist] = useState(() => {
     try {
       const saved = localStorage.getItem('fitlife_wishlist');
-      return saved ? JSON.parse(saved) : ["club-1", "club-3"];
+      return saved ? JSON.parse(saved) : ["club-1", "club-3", 1, 3];
     } catch {
-      return ["club-1", "club-3"];
+      return ["club-1", "club-3", 1, 3];
     }
   });
 
-  // Bookings / Membership Applications
+  // Bookings / Membership Applications / Orders
   const [bookings, setBookings] = useState(() => {
     try {
       const saved = localStorage.getItem('fitlife_bookings');
@@ -119,12 +154,18 @@ export const StoreProvider = ({ children }) => {
   // UI States
   const [selectedBookingClub, setSelectedBookingClub] = useState(null);
   const [quickViewClub, setQuickViewClub] = useState(null);
+  const [quickViewProduct, setQuickViewProduct] = useState(null);
+  const [quickBuyProduct, setQuickBuyProduct] = useState(null);
   const [toast, setToast] = useState(null);
 
   // Persistence Effects
   useEffect(() => {
     localStorage.setItem('fitlife_clubs', JSON.stringify(clubs));
   }, [clubs]);
+
+  useEffect(() => {
+    localStorage.setItem('fitlife_products', JSON.stringify(products));
+  }, [products]);
 
   useEffect(() => {
     localStorage.setItem('fitlife_wishlist', JSON.stringify(wishlist));
@@ -181,21 +222,49 @@ export const StoreProvider = ({ children }) => {
     showToast("Sport markazi o'chirildi", "info");
   };
 
+  // Product CRUD
+  const addProduct = (newProduct) => {
+    const product = {
+      ...newProduct,
+      id: Date.now(),
+      rating: newProduct.rating || 5.0,
+      reviewsCount: 1,
+      isNew: true,
+      images: [newProduct.image]
+    };
+    setProducts(prev => [product, ...prev]);
+    showToast("Yangi sport mahsuloti muvaffaqiyatli qo'shildi!");
+    return product;
+  };
+
+  const updateProduct = (id, updatedFields) => {
+    setProducts(prev =>
+      prev.map(p => (p.id === id ? { ...p, ...updatedFields } : p))
+    );
+    showToast("Sport mahsuloti ma'lumotlari yangilandi!");
+  };
+
+  const deleteProduct = (id) => {
+    setProducts(prev => prev.filter(p => p.id !== id));
+    setWishlist(prev => prev.filter(wId => wId !== id));
+    showToast("Mahsulot o'chirildi", "info");
+  };
+
   // Wishlist toggle
-  const toggleWishlist = (clubId) => {
+  const toggleWishlist = (itemId) => {
     setWishlist(prev => {
-      const exists = prev.includes(clubId);
+      const exists = prev.includes(itemId);
       if (exists) {
         showToast("Sevimlilardan olib tashlandi", "info");
-        return prev.filter(id => id !== clubId);
+        return prev.filter(id => id !== itemId);
       } else {
         showToast("Sevimlilar ro'yxatiga saqlandi! ❤️");
-        return [...prev, clubId];
+        return [...prev, itemId];
       }
     });
   };
 
-  const isWishlisted = (clubId) => wishlist.includes(clubId);
+  const isWishlisted = (itemId) => wishlist.includes(itemId);
 
   // Promo code operations
   const applyPromo = (code) => {
@@ -260,6 +329,7 @@ export const StoreProvider = ({ children }) => {
       phone: bookingData.phone,
       clubName: typeof club.name === 'string' ? club.name : club.name.uz,
       category: club.category,
+      type: "club_pass",
       startDate: bookingData.startDate || new Date().toISOString().split('T')[0],
       originalPrice: basePrice,
       discountAmount,
@@ -274,14 +344,14 @@ export const StoreProvider = ({ children }) => {
     // Format Telegram message
     const tgMessage = `🏋️ <b>YANGI SPORT ABONEMENTI BRONI!</b>\n\n` +
       `🎫 <b>Bron ID:</b> #${newBooking.id}\n` +
-      `👤 <b>Sportchi:</b> ${newBooking.customer}\n` +
+      `👤 <b>Mijoz:</b> ${newBooking.customer}\n` +
       `📞 <b>Telefon:</b> ${newBooking.phone}\n` +
-      `🏟️ <b>Sport Markazi:</b> ${newBooking.clubName}\n` +
+      `🏟️ <b>Sport Majmuasi:</b> ${newBooking.clubName}\n` +
       `📅 <b>Boshlanish sanasi:</b> ${newBooking.startDate}\n` +
       `🏷️ <b>Promokod:</b> ${newBooking.promoCode || 'Yo\'q'}\n` +
       `💰 <b>Abonement to'lovi:</b> <b>${newBooking.finalPrice.toLocaleString()} so'm</b>\n` +
       `🕒 <b>Vaqt:</b> ${newBooking.date}\n\n` +
-      `✅ <i>FitLife Pro — IT Olimpiada 2026 Sog‘liq va Sport Ekotizimi</i>`;
+      `✅ <i>FitLife Pro — Sog‘liq va Sport Ekotizimi</i>`;
 
     await sendTelegramNotification(tgMessage);
 
@@ -294,6 +364,56 @@ export const StoreProvider = ({ children }) => {
     setSelectedBookingClub(null);
     showToast("Abonement muvaffaqiyatli bron qilindi va Telegram botga yuborildi!");
     return newBooking;
+  };
+
+  // Order Sport Product directly
+  const orderProduct = async (orderData) => {
+    const product = orderData.product;
+    const price = product.discountPrice || product.price;
+    const discountAmount = Math.round((price * promoPercent) / 100);
+    const finalPrice = Math.max(0, price - discountAmount);
+
+    const newOrder = {
+      id: "ORD-" + Math.floor(1000 + Math.random() * 9000),
+      customer: orderData.name,
+      phone: orderData.phone,
+      clubName: product.name,
+      category: product.category,
+      type: "product_order",
+      address: orderData.address || "Yetkazib berish (Toshkent)",
+      startDate: "Yetkazib berish: 24 soat",
+      originalPrice: price,
+      discountAmount,
+      finalPrice,
+      promoCode: appliedPromo || null,
+      status: "pending",
+      date: new Date().toLocaleString()
+    };
+
+    setBookings(prev => [newOrder, ...prev]);
+
+    const tgMessage = `📦 <b>YANGI SPORT MAHSULOTI BUYURTMASI!</b>\n\n` +
+      `🧾 <b>Buyurtma ID:</b> #${newOrder.id}\n` +
+      `👤 <b>Xaridor:</b> ${newOrder.customer}\n` +
+      `📞 <b>Telefon:</b> ${newOrder.phone}\n` +
+      `💊 <b>Mahsulot:</b> ${newOrder.clubName}\n` +
+      `📍 <b>Manzil:</b> ${newOrder.address}\n` +
+      `🏷️ <b>Promokod:</b> ${newOrder.promoCode || 'Yo\'q'}\n` +
+      `💰 <b>To'lov summasi:</b> <b>${newOrder.finalPrice.toLocaleString()} so'm</b>\n` +
+      `🕒 <b>Vaqt:</b> ${newOrder.date}\n\n` +
+      `⚡ <i>FitLife Pro — Sog‘liq va Sport Do'koni</i>`;
+
+    await sendTelegramNotification(tgMessage);
+
+    confetti({
+      particleCount: 120,
+      spread: 75,
+      origin: { y: 0.6 }
+    });
+
+    setQuickBuyProduct(null);
+    showToast("Buyurtma qabul qilindi va Telegram botga yuborildi!");
+    return newOrder;
   };
 
   const updateBookingStatus = (bookingId, newStatus) => {
@@ -310,12 +430,17 @@ export const StoreProvider = ({ children }) => {
         addClub,
         updateClub,
         deleteClub,
+        products,
+        addProduct,
+        updateProduct,
+        deleteProduct,
         wishlist,
         toggleWishlist,
         isWishlisted,
         wishlistCount: wishlist.length,
         bookings,
         createBooking,
+        orderProduct,
         updateBookingStatus,
         appliedPromo,
         applyPromo,
@@ -325,6 +450,10 @@ export const StoreProvider = ({ children }) => {
         setSelectedBookingClub,
         quickViewClub,
         setQuickViewClub,
+        quickViewProduct,
+        setQuickViewProduct,
+        quickBuyProduct,
+        setQuickBuyProduct,
         telegramConfig,
         setTelegramConfig,
         sendTelegramNotification,

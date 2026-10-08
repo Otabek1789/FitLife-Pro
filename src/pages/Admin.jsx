@@ -8,6 +8,7 @@ import {
   Dumbbell,
   LayoutDashboard, 
   Building2, 
+  ShoppingBag,
   ClipboardList, 
   Users, 
   Send, 
@@ -29,7 +30,9 @@ import {
   Moon,
   ShieldCheck,
   Star,
-  MapPin
+  MapPin,
+  PackageCheck,
+  Tag
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -42,6 +45,10 @@ export const Admin = () => {
     addClub, 
     updateClub, 
     deleteClub, 
+    products,
+    addProduct,
+    updateProduct,
+    deleteProduct,
     bookings, 
     updateBookingStatus,
     telegramConfig,
@@ -50,9 +57,10 @@ export const Admin = () => {
     showToast
   } = useStore();
 
-  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'clubs' | 'bookings' | 'users' | 'telegram'
+  const [activeTab, setActiveTab] = useState('dashboard'); // 'dashboard' | 'products' | 'clubs' | 'bookings' | 'users' | 'telegram'
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [clubSearch, setClubSearch] = useState('');
+  const [productSearch, setProductSearch] = useState('');
 
   // Add/Edit Club Modal State
   const [isClubModalOpen, setIsClubModalOpen] = useState(false);
@@ -73,24 +81,38 @@ export const Admin = () => {
     descEn: '',
   });
 
+  // Add/Edit Product Modal State
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProductId, setEditingProductId] = useState(null);
+  const [productForm, setProductForm] = useState({
+    name: '',
+    category: 'nutrition',
+    price: 450000,
+    discountPrice: 390000,
+    stock: 25,
+    image: 'https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?auto=format&fit=crop&w=800&q=80',
+    description: '',
+  });
+
   // Telegram Settings State
   const [tgToken, setTgToken] = useState(telegramConfig.botToken || '8682232515:AAE_r0XFh0SyhJ7ec3w0JItfAgJCAB8OL-4');
   const [tgChat, setTgChat] = useState(telegramConfig.chatId || '7373118052');
   const [tgChannel, setTgChannel] = useState(telegramConfig.channelName || '@nekitekibeki_bot');
 
   // Stats Calculations
-  const totalPassValue = bookings.reduce((sum, b) => sum + b.finalPrice, 0);
+  const totalPassValue = bookings.reduce((sum, b) => sum + (b.finalPrice || 0), 0);
   const totalBookingsCount = bookings.length;
   const activeClubsCount = clubs.length;
+  const totalProductsCount = products.length;
 
   const weeklySalesData = [
-    { day: "Dush", val: 3.4 },
-    { day: "Sesh", val: 5.1 },
-    { day: "Chor", val: 4.8 },
-    { day: "Pay", val: 7.2 },
-    { day: "Juma", val: 8.6 },
-    { day: "Shan", val: 12.4 },
-    { day: "Yak", val: 10.9 },
+    { day: "Dush", val: 4.2 },
+    { day: "Sesh", val: 5.8 },
+    { day: "Chor", val: 6.1 },
+    { day: "Pay", val: 8.4 },
+    { day: "Juma", val: 10.2 },
+    { day: "Shan", val: 14.8 },
+    { day: "Yak", val: 12.5 },
   ];
   const maxSale = Math.max(...weeklySalesData.map(d => d.val));
 
@@ -103,7 +125,7 @@ export const Admin = () => {
     { id: "usr-5", name: "Kamola Umarova", phone: "+998 99 777 88 99", club: "Shanti Yoga", status: "Muddati tugagan", date: "2026-07-28" }
   ];
 
-  // Open Modal Helpers
+  // Open Modal Helpers for Clubs
   const handleOpenAddClub = () => {
     setEditingClubId(null);
     setClubForm({
@@ -175,8 +197,79 @@ export const Admin = () => {
   };
 
   const handleDeleteClub = (id) => {
-    if (window.confirm(t('delete_confirm'))) {
+    if (window.confirm("Rostdan ham ushbu sport markazini o'chirmoqchimisiz?")) {
       deleteClub(id);
+    }
+  };
+
+  // Open Modal Helpers for Products
+  const handleOpenAddProduct = () => {
+    setEditingProductId(null);
+    setProductForm({
+      name: '',
+      category: 'nutrition',
+      price: 450000,
+      discountPrice: 390000,
+      stock: 20,
+      image: 'https://images.unsplash.com/photo-1579722821273-0f6c7d44362f?auto=format&fit=crop&w=800&q=80',
+      description: '',
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const handleOpenEditProduct = (prod) => {
+    setEditingProductId(prod.id);
+    setProductForm({
+      name: prod.name,
+      category: prod.category,
+      price: prod.price,
+      discountPrice: prod.discountPrice || prod.price,
+      stock: prod.stock || 10,
+      image: prod.image,
+      description: typeof prod.description === 'string' ? prod.description : (prod.description?.uz || ''),
+    });
+    setIsProductModalOpen(true);
+  };
+
+  const handleSaveProduct = (e) => {
+    e.preventDefault();
+    const formattedData = {
+      name: productForm.name,
+      category: productForm.category,
+      categoryName: {
+        uz: productForm.category === 'nutrition' ? 'Protein & Ozuqa' :
+            productForm.category === 'equipment' ? 'Trenajyor & Anjomlar' :
+            productForm.category === 'vitamins' ? 'Vitaminlar & Salomatlik' : 'Sport Kiyimlari',
+        ru: productForm.category === 'nutrition' ? 'Спортпит & Протеин' :
+            productForm.category === 'equipment' ? 'Тренажеры & Инвентарь' :
+            productForm.category === 'vitamins' ? 'Витамины & Здоровье' : 'Спортивная Одежда',
+        en: productForm.category === 'nutrition' ? 'Sports Nutrition' :
+            productForm.category === 'equipment' ? 'Gym Equipment' :
+            productForm.category === 'vitamins' ? 'Vitamins & Health' : 'Sport Apparel'
+      },
+      price: Number(productForm.price),
+      discountPrice: Number(productForm.discountPrice),
+      stock: Number(productForm.stock),
+      image: productForm.image,
+      images: [productForm.image],
+      description: {
+        uz: productForm.description || "Yuqori sifatli sport mahsuloti",
+        ru: productForm.description || "Высококачественный спортивный товар",
+        en: productForm.description || "High-quality athletic fitness product"
+      }
+    };
+
+    if (editingProductId) {
+      updateProduct(editingProductId, formattedData);
+    } else {
+      addProduct(formattedData);
+    }
+    setIsProductModalOpen(false);
+  };
+
+  const handleDeleteProduct = (id) => {
+    if (window.confirm("Rostdan ham ushbu mahsulotni o'chirmoqchimisiz?")) {
+      deleteProduct(id);
     }
   };
 
@@ -188,34 +281,40 @@ export const Admin = () => {
       chatId: tgChat,
       channelName: tgChannel
     });
-    showToast("Telegram sozlamalari saqlandi!");
+    showToast("Telegram sozlamalari muvaffaqiyatli saqlandi!");
   };
 
   const handleSendTestTelegram = async () => {
-    const testMsg = `🔔 <b>TEST XABARI (FitLife Admin):</b>\nTelegram Bot ulanishi muvaffaqiyatli ishlayapti!\nSana: ${new Date().toLocaleString()}`;
+    const testMsg = `🔔 <b>TEST XABARI (FitLife Pro Admin):</b>\nTelegram Bot ulanishi muvaffaqiyatli ishlamoqda!\nSana: ${new Date().toLocaleString()}`;
     await sendTelegramNotification(testMsg);
     confetti({ particleCount: 50, spread: 50, origin: { y: 0.7 } });
     showToast("Test xabari Telegram botga muvaffaqiyatli uzatildi!");
   };
 
-  // Filtered clubs in admin
+  // Filtered lists
   const filteredAdminClubs = clubs.filter(c => {
     const nameStr = getLocalized(c.name).toLowerCase();
     return nameStr.includes(clubSearch.toLowerCase()) || c.category.includes(clubSearch.toLowerCase());
   });
 
+  const filteredAdminProducts = products.filter(p => {
+    const nameStr = p.name.toLowerCase();
+    return nameStr.includes(productSearch.toLowerCase()) || p.category.includes(productSearch.toLowerCase());
+  });
+
   const sidebarMenuItems = [
-    { id: 'dashboard', label: t('admin_sidebar_dash'), icon: LayoutDashboard },
-    { id: 'clubs', label: t('admin_sidebar_clubs'), icon: Building2 },
-    { id: 'bookings', label: t('admin_sidebar_bookings'), icon: ClipboardList, badge: bookings.length },
-    { id: 'users', label: t('admin_sidebar_users'), icon: Users, badge: 5 },
-    { id: 'telegram', label: t('admin_sidebar_telegram'), icon: Send },
+    { id: 'dashboard', label: 'Boshqaruv Paneli', icon: LayoutDashboard },
+    { id: 'products', label: 'Sport Mahsulotlari', icon: ShoppingBag, badge: products.length },
+    { id: 'clubs', label: 'Sport Zallari & Majmualar', icon: Building2, badge: clubs.length },
+    { id: 'bookings', label: 'Arizalar & Buyurtmalar', icon: ClipboardList, badge: bookings.length },
+    { id: 'users', label: 'Sportchilar', icon: Users, badge: 5 },
+    { id: 'telegram', label: 'Telegram Bot API', icon: Send },
   ];
 
   return (
     <div className="min-h-screen bg-slate-100 dark:bg-slate-950 flex transition-colors">
       
-      {/* SIDEBAR COMPONENT (DESKTOP & MOBILE DRAWER) */}
+      {/* SIDEBAR COMPONENT */}
       <aside className={`fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex flex-col justify-between transition-transform duration-300 lg:translate-x-0 ${
         isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
       }`}>
@@ -224,14 +323,14 @@ export const Admin = () => {
         <div>
           <div className="p-6 border-b border-slate-100 dark:border-slate-800/80 flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-emerald-500 flex items-center justify-center text-white shadow-md shadow-purple-500/20">
+              <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-500 via-teal-500 to-cyan-500 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
                 <Dumbbell className="w-5 h-5 stroke-[2.2]" />
               </div>
               <div>
-                <span className="text-xl font-black bg-gradient-to-r from-purple-600 via-indigo-500 to-emerald-400 bg-clip-text text-transparent">
-                  FitLife
+                <span className="text-xl font-black bg-gradient-to-r from-emerald-600 via-teal-500 to-cyan-500 bg-clip-text text-transparent">
+                  FitLife Pro
                 </span>
-                <span className="text-[10px] font-bold uppercase block text-purple-600 dark:text-purple-400 tracking-wider">
+                <span className="text-[10px] font-bold uppercase block text-emerald-600 dark:text-emerald-400 tracking-wider">
                   Admin Panel
                 </span>
               </div>
@@ -246,18 +345,16 @@ export const Admin = () => {
           </div>
 
           {/* Admin User Card */}
-          <div className="p-4 mx-4 mt-4 rounded-2xl bg-slate-50 dark:bg-slate-800/50 border border-slate-200/80 dark:border-slate-800 flex items-center gap-3">
-            <img
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80"
-              alt="Admin"
-              className="w-10 h-10 rounded-xl object-cover border border-purple-500 shrink-0"
-            />
+          <div className="p-4 mx-4 mt-4 rounded-2xl bg-emerald-500/5 dark:bg-slate-800/50 border border-emerald-500/20 dark:border-slate-800 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-500 flex items-center justify-center text-white font-black text-sm shrink-0">
+              FP
+            </div>
             <div className="min-w-0 flex-1">
               <h4 className="text-xs font-black text-slate-900 dark:text-white truncate">
-                Bobur Mirzayev
+                FitLife Administrator
               </h4>
-              <span className="inline-block text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400">
-                Bosh Administrator
+              <span className="inline-block text-[10px] font-extrabold uppercase px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                Boshqaruvchi
               </span>
             </div>
           </div>
@@ -276,7 +373,7 @@ export const Admin = () => {
                   }}
                   className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-xs font-bold transition ${
                     isActive
-                      ? 'bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-500/25'
+                      ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/25'
                       : 'text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800'
                   }`}
                 >
@@ -284,7 +381,7 @@ export const Admin = () => {
                     <Icon className="w-4 h-4" />
                     <span>{item.label}</span>
                   </div>
-                  {item.badge && (
+                  {item.badge !== undefined && (
                     <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
                       isActive ? 'bg-white/20 text-white' : 'bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-300'
                     }`}>
@@ -304,14 +401,14 @@ export const Admin = () => {
             className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
           >
             <ExternalLink className="w-4 h-4 text-emerald-500" />
-            <span>{t('admin_sidebar_exit')}</span>
+            <span>Saytga Qaytish</span>
           </Link>
           <button
             onClick={logout}
             className="w-full flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl text-xs font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 transition text-left"
           >
             <LogOut className="w-4 h-4" />
-            <span>{t('nav_logout')}</span>
+            <span>Chiqish</span>
           </button>
         </div>
 
@@ -346,15 +443,15 @@ export const Admin = () => {
             {!isAdmin ? (
               <button
                 onClick={() => quickDemoLogin('admin')}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white font-bold text-xs shadow-md shadow-purple-500/20 transition"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 transition"
               >
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>Admin Ruxsati</span>
+                <span>Admin Rejimi</span>
               </button>
             ) : (
               <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold">
                 <CheckCircle className="w-3.5 h-3.5" />
-                <span>Admin Rejimi</span>
+                <span>Admin Ruxsati Faol</span>
               </div>
             )}
 
@@ -370,7 +467,7 @@ export const Admin = () => {
         {/* Main Body */}
         <div className="p-4 sm:p-8 space-y-8 flex-1">
           
-          {/* TAB 1: DASHBOARD & ANALYTICS */}
+          {/* TAB 1: DASHBOARD */}
           {activeTab === 'dashboard' && (
             <div className="space-y-8">
               
@@ -382,21 +479,21 @@ export const Admin = () => {
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                      {t('admin_total_sales')}
+                      Umumiy Tushum
                     </span>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
-                      {(totalPassValue / 1000000).toFixed(2)} mln <span className="text-xs font-normal text-emerald-500">{t('currency')}</span>
+                      {(totalPassValue / 1000000).toFixed(2)} mln <span className="text-xs font-normal text-emerald-500">so'm</span>
                     </h3>
                   </div>
                 </div>
 
                 <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-500 flex items-center justify-center shrink-0">
                     <ClipboardList className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                      {t('admin_total_bookings')}
+                      Jami Arizalar & Buyurtmalar
                     </span>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
                       {totalBookingsCount} ta
@@ -405,29 +502,29 @@ export const Admin = () => {
                 </div>
 
                 <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-500 flex items-center justify-center shrink-0">
-                    <Users className="w-6 h-6" />
+                  <div className="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-500 flex items-center justify-center shrink-0">
+                    <ShoppingBag className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                      {t('admin_total_users')}
+                      Sport Mahsulotlari
                     </span>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
-                      1,840 sportchi
+                      {totalProductsCount} xil
                     </h3>
                   </div>
                 </div>
 
                 <div className="p-6 rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-teal-500/10 text-teal-500 flex items-center justify-center shrink-0">
+                  <div className="w-12 h-12 rounded-2xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
                     <Building2 className="w-6 h-6" />
                   </div>
                   <div>
                     <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                      {t('admin_total_clubs')}
+                      Faol Sport Majmualari
                     </span>
                     <h3 className="text-xl font-black text-slate-900 dark:text-white mt-0.5">
-                      {activeClubsCount} majmua
+                      {activeClubsCount} ta
                     </h3>
                   </div>
                 </div>
@@ -439,11 +536,11 @@ export const Admin = () => {
                   <div className="flex items-center gap-2">
                     <TrendingUp className="w-5 h-5 text-emerald-500" />
                     <h3 className="text-base font-black text-slate-900 dark:text-white">
-                      {t('admin_sales_chart')}
+                      FitLife Pro Savdo & A'zolik Dinamikasi
                     </h3>
                   </div>
                   <span className="text-xs font-bold text-slate-400">
-                    Haftalik a'zolik dinamikasi
+                    Haftalik ko'rsatkich
                   </span>
                 </div>
 
@@ -457,7 +554,7 @@ export const Admin = () => {
                         </span>
                         <div
                           style={{ height: `${heightPercent}%` }}
-                          className="w-full max-w-[42px] rounded-xl bg-gradient-to-t from-purple-600 via-indigo-500 to-emerald-400 shadow-md group-hover:brightness-110 transition-all duration-300"
+                          className="w-full max-w-[42px] rounded-xl bg-gradient-to-t from-emerald-600 via-teal-500 to-cyan-400 shadow-md group-hover:brightness-110 transition-all duration-300"
                         />
                         <span className="text-xs font-bold text-slate-500 dark:text-slate-400">
                           {item.day}
@@ -471,18 +568,20 @@ export const Admin = () => {
               {/* Recent Bookings List Widget */}
               <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 shadow-xl">
                 <h4 className="text-sm font-black text-slate-900 dark:text-white mb-4">
-                  So'nggi Kelib Tushgan Arizalar
+                  So'nggi Kelib Tushgan Arizalar & Buyurtmalar
                 </h4>
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {bookings.slice(0, 3).map((b) => (
+                  {bookings.slice(0, 4).map((b) => (
                     <div key={b.id} className="py-3 flex items-center justify-between gap-4 text-xs">
                       <div>
                         <span className="font-bold text-slate-900 dark:text-white block">{b.customer}</span>
                         <span className="text-slate-400 text-[11px]">{b.clubName} • {b.phone}</span>
                       </div>
                       <div className="text-right">
-                        <span className="font-extrabold text-emerald-500 block">{b.finalPrice.toLocaleString()} {t('currency')}</span>
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 uppercase font-bold">
+                        <span className="font-extrabold text-emerald-500 block">{(b.finalPrice || 0).toLocaleString()} so'm</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase font-bold ${
+                          b.status === 'confirmed' ? 'bg-emerald-500/10 text-emerald-600' : 'bg-amber-500/10 text-amber-600'
+                        }`}>
                           {b.status}
                         </span>
                       </div>
@@ -494,7 +593,91 @@ export const Admin = () => {
             </div>
           )}
 
-          {/* TAB 2: CLUBS & PROGRAMS CRUD */}
+          {/* TAB 2: SPORT PRODUCTS MANAGEMENT */}
+          {activeTab === 'products' && (
+            <div className="space-y-4">
+              <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="relative w-full sm:max-w-xs">
+                  <Search className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+                  <input
+                    type="text"
+                    placeholder="Mahsulotlarni qidirish..."
+                    value={productSearch}
+                    onChange={(e) => setProductSearch(e.target.value)}
+                    className="w-full pl-9 pr-3 py-2 text-xs rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-slate-900 dark:text-white"
+                  />
+                </div>
+
+                <button
+                  onClick={handleOpenAddProduct}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-bold text-xs shadow-md shadow-emerald-500/20 active:scale-95 transition"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Yangi Sport Mahsuloti Qo'shish</span>
+                </button>
+              </div>
+
+              <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
+                      <th className="p-4">Rasm & Nomi</th>
+                      <th className="p-4">Toifasi</th>
+                      <th className="p-4">Narxi</th>
+                      <th className="p-4">Chegirma Narxi</th>
+                      <th className="p-4">Zaxira</th>
+                      <th className="p-4 text-right">Amallar</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
+                    {filteredAdminProducts.map((prod) => (
+                      <tr key={prod.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
+                        <td className="p-4 flex items-center gap-3">
+                          <img src={prod.image} alt={prod.name} className="w-12 h-12 rounded-xl object-cover shrink-0 border border-slate-200 dark:border-slate-700" />
+                          <div>
+                            <div className="font-bold text-slate-900 dark:text-white line-clamp-1 max-w-xs">{prod.name}</div>
+                            <span className="text-[10px] text-slate-400">ID: #{prod.id}</span>
+                          </div>
+                        </td>
+                        <td className="p-4">
+                          <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold uppercase text-[10px]">
+                            {prod.category}
+                          </span>
+                        </td>
+                        <td className="p-4 text-slate-500 line-through">
+                          {prod.price.toLocaleString()} so'm
+                        </td>
+                        <td className="p-4 font-extrabold text-emerald-600 dark:text-emerald-400">
+                          {(prod.discountPrice || prod.price).toLocaleString()} so'm
+                        </td>
+                        <td className="p-4 font-bold text-slate-900 dark:text-white">
+                          {prod.stock || 0} dona
+                        </td>
+                        <td className="p-4 text-right space-x-2">
+                          <button
+                            onClick={() => handleOpenEditProduct(prod)}
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-500"
+                            title="Tahrirlash"
+                          >
+                            <Edit3 className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteProduct(prod.id)}
+                            className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-500"
+                            title="O'chirish"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 3: CLUBS & PROGRAMS CRUD */}
           {activeTab === 'clubs' && (
             <div className="space-y-4">
               <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -514,7 +697,7 @@ export const Admin = () => {
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 active:scale-95 transition"
                 >
                   <Plus className="w-4 h-4" />
-                  <span>{t('admin_add_club')}</span>
+                  <span>Yangi Sport Majmuasi Qo'shish</span>
                 </button>
               </div>
 
@@ -548,7 +731,7 @@ export const Admin = () => {
                             </span>
                           </td>
                           <td className="p-4 font-bold text-slate-900 dark:text-white">
-                            {club.monthlyPrice.toLocaleString()} {t('currency')}
+                            {club.monthlyPrice.toLocaleString()} so'm
                           </td>
                           <td className="p-4">
                             {club.discount ? (
@@ -564,14 +747,14 @@ export const Admin = () => {
                             <button
                               onClick={() => handleOpenEditClub(club)}
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-emerald-500"
-                              title={t('admin_edit_club')}
+                              title="Tahrirlash"
                             >
                               <Edit3 className="w-4 h-4" />
                             </button>
                             <button
                               onClick={() => handleDeleteClub(club.id)}
                               className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-500"
-                              title={t('admin_delete_club')}
+                              title="O'chirish"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -585,17 +768,17 @@ export const Admin = () => {
             </div>
           )}
 
-          {/* TAB 3: BOOKINGS / APPLICATIONS */}
+          {/* TAB 4: BOOKINGS & ORDERS */}
           {activeTab === 'bookings' && (
             <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
-                    <th className="p-4">{t('admin_booking_id')}</th>
-                    <th className="p-4">{t('admin_booking_client')}</th>
-                    <th className="p-4">{t('admin_booking_club')}</th>
-                    <th className="p-4">{t('admin_booking_total')}</th>
-                    <th className="p-4">{t('admin_booking_status')}</th>
+                    <th className="p-4">ID & Sana</th>
+                    <th className="p-4">Mijoz</th>
+                    <th className="p-4">Majmua / Mahsulot</th>
+                    <th className="p-4">To'lov Summasi</th>
+                    <th className="p-4">Holati</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-slate-700 dark:text-slate-300">
@@ -604,18 +787,23 @@ export const Admin = () => {
                       <td className="p-4 font-mono font-bold text-slate-900 dark:text-white">
                         #{b.id}
                         <div className="text-[10px] text-slate-400">{b.date}</div>
+                        {b.type === 'product_order' ? (
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-blue-500/10 text-blue-500 font-bold">Mahsulot</span>
+                        ) : (
+                          <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-500 font-bold">Abonement</span>
+                        )}
                       </td>
                       <td className="p-4">
                         <div className="font-bold text-slate-900 dark:text-white">{b.customer}</div>
                         <div className="text-[10px] text-slate-500">{b.phone}</div>
-                        <div className="text-[10px] text-emerald-500">Boshlanish: {b.startDate}</div>
+                        <div className="text-[10px] text-emerald-500">{b.startDate}</div>
                       </td>
                       <td className="p-4">
                         <div className="font-bold text-slate-800 dark:text-slate-200">{b.clubName}</div>
                         <span className="text-[10px] uppercase font-bold text-slate-400">{b.category}</span>
                       </td>
                       <td className="p-4 font-extrabold text-slate-900 dark:text-white">
-                        {b.finalPrice.toLocaleString()} {t('currency')}
+                        {(b.finalPrice || 0).toLocaleString()} so'm
                         {b.promoCode && (
                           <span className="block text-[10px] text-emerald-500 font-bold">🏷️ {b.promoCode}</span>
                         )}
@@ -632,9 +820,9 @@ export const Admin = () => {
                               : 'bg-amber-500/10 border-amber-500/30 text-amber-600 dark:text-amber-400'
                           }`}
                         >
-                          <option value="pending">{t('admin_status_pending')}</option>
-                          <option value="confirmed">{t('admin_status_confirmed')}</option>
-                          <option value="cancelled">{t('admin_status_cancelled')}</option>
+                          <option value="pending">Kutilmoqda</option>
+                          <option value="confirmed">Tasdiqlandi</option>
+                          <option value="cancelled">Bekor qilindi</option>
                         </select>
                       </td>
                     </tr>
@@ -644,7 +832,7 @@ export const Admin = () => {
             </div>
           )}
 
-          {/* TAB 4: USERS / ATHLETES */}
+          {/* TAB 5: USERS / ATHLETES */}
           {activeTab === 'users' && (
             <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-xl overflow-hidden overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
@@ -661,7 +849,7 @@ export const Admin = () => {
                   {mockAthletes.map((usr) => (
                     <tr key={usr.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40 transition">
                       <td className="p-4 font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-full bg-purple-500/10 text-purple-600 flex items-center justify-center font-bold">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/10 text-emerald-600 flex items-center justify-center font-bold">
                           {usr.name[0]}
                         </div>
                         <span>{usr.name}</span>
@@ -687,7 +875,7 @@ export const Admin = () => {
             </div>
           )}
 
-          {/* TAB 5: TELEGRAM BOT SETTINGS */}
+          {/* TAB 6: TELEGRAM BOT SETTINGS */}
           {activeTab === 'telegram' && (
             <div className="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-6 sm:p-8 shadow-xl max-w-2xl">
               <div className="flex items-center gap-3 mb-6">
@@ -696,10 +884,10 @@ export const Admin = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-black text-slate-900 dark:text-white">
-                    Telegram Bot API Sozlamasi
+                    FitLife Pro — Telegram Bot API Sozlamasi
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Abonement bronlari va arizalar to'g'ridan-to'g'ri Telegram kanal/guruhingizga keladi
+                    Abonement bronlari va mahsulot buyurtmalari darhol Telegram botingizga yuboriladi
                   </p>
                 </div>
               </div>
@@ -707,11 +895,11 @@ export const Admin = () => {
               <form onSubmit={handleSaveTelegram} className="space-y-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('admin_tg_token_label')}
+                    Telegram Bot Token
                   </label>
                   <input
                     type="text"
-                    placeholder="7896541234:AAH_your_bot_token"
+                    placeholder="8682232515:AAE_..."
                     value={tgToken}
                     onChange={(e) => setTgToken(e.target.value)}
                     className="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
@@ -720,13 +908,26 @@ export const Admin = () => {
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('admin_tg_chat_label')}
+                    Chat ID / Guruh ID
                   </label>
                   <input
                     type="text"
-                    placeholder="-1001234567890 yoki @kanal_username"
+                    placeholder="7373118052"
                     value={tgChat}
                     onChange={(e) => setTgChat(e.target.value)}
+                    className="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Kanal / Bot Username
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="@nekitekibeki_bot"
+                    value={tgChannel}
+                    onChange={(e) => setTgChannel(e.target.value)}
                     className="w-full px-4 py-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white font-mono"
                   />
                 </div>
@@ -737,7 +938,7 @@ export const Admin = () => {
                     className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20 active:scale-95 transition"
                   >
                     <Save className="w-4 h-4" />
-                    <span>{t('admin_tg_save_btn')}</span>
+                    <span>Sozlamalarni Saqlash</span>
                   </button>
 
                   <button
@@ -746,7 +947,7 @@ export const Admin = () => {
                     className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-bold text-xs shadow-md shadow-teal-500/20 active:scale-95 transition"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{t('admin_tg_test_btn')}</span>
+                    <span>Test Xabari Jo'natish</span>
                   </button>
                 </div>
               </form>
@@ -755,6 +956,142 @@ export const Admin = () => {
 
         </div>
       </div>
+
+      {/* ADD / EDIT PRODUCT MODAL */}
+      {isProductModalOpen && (
+        <div className="fixed inset-0 z-50 overflow-y-auto flex items-center justify-center p-4">
+          <div onClick={() => setIsProductModalOpen(false)} className="fixed inset-0 bg-slate-950/70 backdrop-blur-sm" />
+          <div className="relative w-full max-w-xl bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-2xl p-6 sm:p-8 z-10 max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+            <button
+              onClick={() => setIsProductModalOpen(false)}
+              className="absolute top-4 right-4 p-2 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4">
+              {editingProductId ? "Sport Mahsulotini Tahrirlash" : "Yangi Sport Mahsuloti Qo'shish"}
+            </h3>
+
+            <form onSubmit={handleSaveProduct} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Mahsulot Nomi
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Masalan: Optimum Nutrition Gold Standard Whey Protein"
+                  value={productForm.name}
+                  onChange={(e) => setProductForm({ ...productForm, name: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Toifasi
+                  </label>
+                  <select
+                    value={productForm.category}
+                    onChange={(e) => setProductForm({ ...productForm, category: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                  >
+                    <option value="nutrition">Protein & Ozuqa</option>
+                    <option value="equipment">Trenajyor & Anjomlar</option>
+                    <option value="vitamins">Vitaminlar & Salomatlik</option>
+                    <option value="apparel">Sport Kiyimlari</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Zaxiradagi soni (dona)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    required
+                    value={productForm.stock}
+                    onChange={(e) => setProductForm({ ...productForm, stock: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Asl Narxi (so'm)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={productForm.price}
+                    onChange={(e) => setProductForm({ ...productForm, price: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                    Chegirmali Narxi (so'm)
+                  </label>
+                  <input
+                    type="number"
+                    required
+                    value={productForm.discountPrice}
+                    onChange={(e) => setProductForm({ ...productForm, discountPrice: e.target.value })}
+                    className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Rasm Havolasi (URL)
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="https://images.unsplash.com/..."
+                  value={productForm.image}
+                  onChange={(e) => setProductForm({ ...productForm, image: e.target.value })}
+                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
+                  Mahsulot haqida tavsif
+                </label>
+                <textarea
+                  rows={3}
+                  value={productForm.description}
+                  onChange={(e) => setProductForm({ ...productForm, description: e.target.value })}
+                  placeholder="Mahsulotning afzalliklari va qo'llanishi..."
+                  className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
+                />
+              </div>
+
+              <div className="flex justify-end gap-2 pt-4 border-t border-slate-100 dark:border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsProductModalOpen(false)}
+                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100"
+                >
+                  Bekor qilish
+                </button>
+                <button
+                  type="submit"
+                  className="px-6 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20"
+                >
+                  Saqlash
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* ADD / EDIT CLUB MODAL */}
       {isClubModalOpen && (
@@ -769,13 +1106,13 @@ export const Admin = () => {
             </button>
 
             <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4">
-              {editingClubId ? t('admin_edit_club') : t('admin_add_club')}
+              {editingClubId ? "Sport Majmuasini Tahrirlash" : "Yangi Sport Majmuasi Qo'shish"}
             </h3>
 
             <form onSubmit={handleSaveClub} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  {t('admin_club_name')} (O'zbekcha)
+                  Sport Majmuasi Nomi
                 </label>
                 <input
                   type="text"
@@ -789,7 +1126,7 @@ export const Admin = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('admin_club_price')}
+                    Oylik Narxi (so'm)
                   </label>
                   <input
                     type="number"
@@ -801,7 +1138,7 @@ export const Admin = () => {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    Chegirma foizi (%)
+                    Aksiya Chegirmasi (%)
                   </label>
                   <input
                     type="number"
@@ -817,23 +1154,23 @@ export const Admin = () => {
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('admin_club_category')}
+                    Sport Toifasi
                   </label>
                   <select
                     value={clubForm.category}
                     onChange={(e) => setClubForm({ ...clubForm, category: e.target.value })}
                     className="w-full px-3 py-2 text-xs rounded-xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-900 dark:text-white"
                   >
-                    <option value="gym">{t('clubs_cat_gym')}</option>
-                    <option value="crossfit">{t('clubs_cat_crossfit')}</option>
-                    <option value="swim">{t('clubs_cat_swim')}</option>
-                    <option value="fight">{t('clubs_cat_fight')}</option>
-                    <option value="yoga">{t('clubs_cat_yoga')}</option>
+                    <option value="gym">Trenajyor Zali</option>
+                    <option value="crossfit">CrossFit Arena</option>
+                    <option value="swim">Suzish Havzasi</option>
+                    <option value="fight">Boks & MMA</option>
+                    <option value="yoga">Yoga & Pilates</option>
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                    {t('admin_club_address')}
+                    Manzili
                   </label>
                   <input
                     type="text"
@@ -847,7 +1184,7 @@ export const Admin = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  {t('admin_club_image')}
+                  Rasm Havolasi (URL)
                 </label>
                 <input
                   type="text"
@@ -873,7 +1210,7 @@ export const Admin = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                  {t('admin_club_desc')}
+                  Majmua haqida tavsif
                 </label>
                 <textarea
                   rows={3}
@@ -889,13 +1226,13 @@ export const Admin = () => {
                   onClick={() => setIsClubModalOpen(false)}
                   className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100"
                 >
-                  {t('admin_cancel')}
+                  Bekor qilish
                 </button>
                 <button
                   type="submit"
                   className="px-6 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs shadow-md shadow-emerald-500/20"
                 >
-                  {t('admin_save')}
+                  Saqlash
                 </button>
               </div>
             </form>

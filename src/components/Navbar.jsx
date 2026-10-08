@@ -36,6 +36,7 @@ export const Navbar = () => {
     { path: '/workouts', label: t('nav_workouts') },
     { path: '/nutrition', label: t('nav_nutrition') },
     { path: '/clubs', label: t('nav_clubs') },
+    { path: '/shop', label: t('nav_shop') },
     { path: '/contact', label: t('nav_contact') },
   ];
 

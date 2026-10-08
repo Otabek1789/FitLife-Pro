@@ -5,6 +5,7 @@ import { Navbar } from './components/Navbar';
 import { Footer } from './components/Footer';
 import { BookingModal } from './components/BookingModal';
 import { QuickViewModal } from './components/QuickViewModal';
+import { ProductQuickBuyModal } from './components/common/ProductQuickBuyModal';
 import { AuthModal } from './components/AuthModal';
 import { Toast } from './components/Toast';
 
@@ -12,6 +13,7 @@ import { Home } from './pages/Home';
 import { Workouts } from './pages/Workouts';
 import { Nutrition } from './pages/Nutrition';
 import { Clubs } from './pages/Clubs';
+import { Shop } from './pages/Shop';
 import { Contact } from './pages/Contact';
 import { Admin } from './pages/Admin';
 
@@ -42,7 +44,7 @@ export default function App() {
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/nutrition" element={<Nutrition />} />
           <Route path="/clubs" element={<Clubs />} />
-          <Route path="/shop" element={<Navigate to="/clubs" replace />} />
+          <Route path="/shop" element={<Shop />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Navigate to="/" replace />} />
@@ -54,6 +56,9 @@ export default function App() {
 
       {/* Club Quick View Modal */}
       <QuickViewModal />
+
+      {/* Product Quick Buy Modal */}
+      <ProductQuickBuyModal />
 
       {/* Auth Modal (Login / Register / Demo) */}
       <AuthModal />

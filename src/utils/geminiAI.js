@@ -19,98 +19,95 @@ export async function askGemini({ message, history = [], products = [] }) {
   // Saytdagi mahsulotlar haqida qisqacha ma'lumot tayyorlash
   const productSummary = (products || []).slice(0, 30).map(p => {
     const price = p.discountPrice || p.price;
-    return `- ${p.name} (${p.category}): ${new Intl.NumberFormat('uz-UZ').format(price)} so'm [Omborda: ${p.stock > 0 ? `${p.stock} dona` : 'mavjud emas'}]`;
+    return `- ${p.name} (${p.category}): ${new Intl.NumberFormat('uz-UZ').format(price)} so'm [Omborda: ${p.stock > 0 ? `${p.stock} dona` : 'mavjud'}]`;
   }).join('\n');
 
-  const systemInstruction = `Siz MODERNO onlayn elektronika do'konining rasmiy va juda aqlli, xushmuomala Google Gemini AI yordamchisisiz.
+  const systemInstruction = `Siz FitLife Pro Sog‘liq va Sport ekotizimining rasmiy va juda aqlli, xushmuomala Google Gemini AI yordamchisisiz.
 Loyihani yaratuvchi va bosh dasturchi: Otabek.
 
 Siz quyidagi barcha ma'lumotlarni mukammal bilasiz:
-1. DO'KON MAHSULOTLARI:
-${productSummary || 'iPhone 15 Pro, Samsung Galaxy S24 Ultra, MacBook Pro M3, Sony WH-1000XM5, AirPods Pro 2 va boshqa ko\'plab texnikalar.'}
+1. SPORT MAHSULOTLARI & OZUQALARI:
+${productSummary || 'Optimum Nutrition Gold Standard Whey Protein, Creapure Kreatin, Smart Regulyativ Gantellar, FitPro 3-in-1 Rashguard, Multivitaminlar, Omega-3 baliq moyi va boshqa ko\'plab sport anjomlari.'}
 
-2. AKSIYALAR VA PROMOKODLAR:
-- "UZBEK2026" — 15% bayramona maxsus chegirma! (Eng zo'r promokod)
-- "WELCOME10" — birinchi xarid uchun 10% chegirma
-- "NAVROZ" — 20% bahorgi mega chegirma
-- "SUPER50K" — 50 000 so'm chegirma
+2. SPORT MAJMUASI VA ZALLARI:
+- FitLife Flagship Mega Arena (Amir Temur ko'chasi 107-B) — 1500m² zali, sauna, fito-bar.
+- AquaSport 50m Olimpiya Suzish Havzasi (Mustaqillik 88).
+- IronCore CrossFit & Kuch Markazi (Bunyodkor 42).
+- Champion Boks & MMA Akademiyasi (Shota Rustaveli 55).
+- Shanti Yoga & Pilates Studiyasi.
 
-3. YETKAZIB BERISH VA TO'LOV:
-- Toshkent: buyurtma berilgan kuni 3-6 soatda eshikkacha yetkaziladi.
-- Barcha viloyatlar: 24-48 soat ichida.
-- 500 000 so'mdan oshsa — yetkazib berish MUTLAQO BEPUL! (Kam bo'lsa Toshkent 25 000 so'm, viloyatlar 40 000 so'm).
-- To'lov turlari: Click, Payme, Uzum Bank, Naqd pul va fiskal chek bilan.
+3. AKSIYALAR VA PROMOKODLAR:
+- "HACKATHON2026" — 25% maxsus chegirma! (Eng zo'r promokod)
+- "FITLIFE" — 15% barcha xizmatlar va mahsulotlar uchun
+- "OLYMP" — 30% VIP sportchi chegirmasi
+- "SPORT10" — 10% birinchi xarid uchun
 
-4. BO'LIB TO'LASH (NASIYA / KREDIT):
-- Hamkorlar: Uzum Nasiya, Anorbank, Alif, Zoodpay.
-- 0% boshlang'ich to'lov, 3 oydan 24 oygacha, faqat pasport yoki ID karta bilan 2 daqiqada tasdiqlanadi.
+4. YETKAZIB BERISH VA TO'LOV:
+- Toshkent: barcha sport tovarlari 24 soatda eshikkacha BEPUL yetkaziladi.
+- Viloyatlar: 24-48 soat ichida.
+- To'lov turlari: Click, Payme, Naqd pul va qabul qilganda ko'rib to'lash.
 
-5. KAFOLAT VA SERVIS:
-- 100% original tovarlar, 12 oylik rasmiy kafolat, 14 kun ichida nuqson aniqlansa yangisiga almashtirish yoki pulni to'liq qaytarish kafolati.
+5. SALOMATLIK & MASHG'ULOTLAR:
+- Individual BMI va kunlik kaloriya/suv kalkulyatori mavjud.
+- Boshlang'ich, o'rta va ilg'or darajadagi trening dasturlari taymer va rep tracker bilan ta'minlangan.
 
-6. BOG'LANISH VA DO'KONLAR:
+6. BOG'LANISH:
 - Telegram bot: @nekitekibeki_bot
-- Bosh do'kon: Toshkent sh., Amir Temur shox ko'chasi 108 (Metro Minor).
-- Telefon: +998 71 200 44 44
+- Bosh ofis: Toshkent sh., Amir Temur shox ko'chasi 107-B
+- Telefon: +998 90 123 45 67
 
 MUHIM QOIDALAR:
-- Foydalanuvchi sayt haqida so'rasa, yuqoridagi aniq ma'lumotlar bilan yordam bering.
-- Agar foydalanuvchi do'kondan tashqari boshqa har qanday savol bersa (masalan: texnologiyalar, telefon tanlash bo'yicha maslahatlar, matematika, hayotiy savollar, dasturlash yoki shunchaki suhbatlashish) — GEMINI AI sifatida hamma savoliga to'liq, aqlli, qiziqarli va do'stona javob bering!
-- Foydalanuvchi qaysi tilda yozsa, o'sha tilda (asosan o'zbek tilida) javob qaytaring. Emoji belgilaridan o'rnida foydalaning.`;
+- Foydalanuvchi qaysi tilda yozsa, o'sha tilda (asosan o'zbek tilida) javob qaytaring.
+- Sport, fitnes, mashqlar texnikasi va sog'lom turmush tarzi bo'yicha maslahatlarni professional va dalda beruvchi ohangda bering!`;
 
-  // Gemini chat formati
-  const contents = [];
+  try {
+    const formattedContents = [];
 
-  // Tarix
-  const recentHistory = (history || []).slice(-6);
-  for (const h of recentHistory) {
-    contents.push({
-      role: h.sender === 'user' ? 'user' : 'model',
-      parts: [{ text: h.text }]
-    });
-  }
-
-  // Yangi savol
-  contents.push({
-    role: 'user',
-    parts: [{ text: message }]
-  });
-
-  const apiEndpoints = [
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`
-  ];
-
-  for (const url of apiEndpoints) {
-    try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: systemInstruction }]
-          },
-          contents,
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 800
-          }
-        })
+    // Oldingi suhbat tarixini qo'shish
+    if (Array.isArray(history) && history.length > 0) {
+      history.slice(-8).forEach(item => {
+        if (item.sender === 'user') {
+          formattedContents.push({ role: 'user', parts: [{ text: item.text }] });
+        } else if (item.sender === 'bot') {
+          formattedContents.push({ role: 'model', parts: [{ text: item.text }] });
+        }
       });
-
-      if (!response.ok) {
-        continue;
-      }
-
-      const data = await response.json();
-      const candidateText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (candidateText && candidateText.trim()) {
-        return candidateText.trim();
-      }
-    } catch (err) {
-      console.warn("Gemini fetch error on", url, err);
     }
-  }
 
-  return null;
+    // Joriy yangi savolni qo'shish
+    formattedContents.push({ role: 'user', parts: [{ text: message }] });
+
+    const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+    const response = await fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        systemInstruction: {
+          parts: [{ text: systemInstruction }]
+        },
+        contents: formattedContents,
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 600,
+        }
+      })
+    });
+
+    if (!response.ok) {
+      console.warn("Gemini API xatoligi:", response.status, response.statusText);
+      return null;
+    }
+
+    const data = await response.json();
+    const candidate = data.candidates?.[0];
+    const replyText = candidate?.content?.parts?.[0]?.text;
+
+    return replyText || null;
+  } catch (error) {
+    console.warn("Gemini API so'rovida xatolik:", error);
+    return null;
+  }
 }

@@ -1,10 +1,10 @@
-// Web Audio API Synthesizer Sound Engine for Moderno Store
+// Web Audio API Synthesizer Sound Engine for FitLife Pro
 // 100% offline, zero external file dependencies, high performance
 
 class SoundEngine {
   constructor() {
     this.ctx = null;
-    this.muted = localStorage.getItem('moderno_sound_muted') === 'true';
+    this.muted = localStorage.getItem('fitlife_sound_muted') === 'true';
     this.initialized = false;
   }
 
@@ -27,8 +27,8 @@ class SoundEngine {
 
   toggleMute() {
     this.muted = !this.muted;
-    localStorage.setItem('moderno_sound_muted', this.muted ? 'true' : 'false');
-    window.dispatchEvent(new CustomEvent('moderno-sound-toggle', { detail: { muted: this.muted } }));
+    localStorage.setItem('fitlife_sound_muted', this.muted ? 'true' : 'false');
+    window.dispatchEvent(new CustomEvent('fitlife-sound-toggle', { detail: { muted: this.muted } }));
     if (!this.muted) {
       this.playPop();
     }
@@ -37,8 +37,8 @@ class SoundEngine {
 
   setMuted(val) {
     this.muted = !!val;
-    localStorage.setItem('moderno_sound_muted', this.muted ? 'true' : 'false');
-    window.dispatchEvent(new CustomEvent('moderno-sound-toggle', { detail: { muted: this.muted } }));
+    localStorage.setItem('fitlife_sound_muted', this.muted ? 'true' : 'false');
+    window.dispatchEvent(new CustomEvent('fitlife-sound-toggle', { detail: { muted: this.muted } }));
   }
 
   // Soft modern UI click
@@ -232,7 +232,7 @@ class SoundEngine {
     } catch (e) {}
   }
 
-  // Coin cling sound (Moderno coins & rewards)
+  // Coin cling sound (FitLife coins & rewards)
   playCoin() {
     if (this.muted) return;
     this.init();
