@@ -61,7 +61,13 @@ export const StoreProvider = ({ children }) => {
   const [clubs, setClubs] = useState(() => {
     try {
       const saved = localStorage.getItem('fitlife_clubs');
-      return saved ? JSON.parse(saved) : initialClubs;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed[0]?.id) {
+          return parsed;
+        }
+      }
+      return initialClubs;
     } catch {
       return initialClubs;
     }
